@@ -68,6 +68,7 @@
 </head>
 <body>
 
+  <!-- Top Navigation Bar -->
   <div class="top-bar">
     <div class="brand-title">🎲 Ludo Lottery BD</div>
     <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
@@ -75,6 +76,7 @@
 
   <div class="drawer-overlay" id="drawer-overlay" onclick="toggleMenu()"></div>
 
+  <!-- Side Navigation Drawer -->
   <div class="nav-drawer" id="nav-drawer">
     <div>
       <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom:1px solid #333;">
@@ -83,7 +85,7 @@
       </div>
       <div class="menu-list">
         <div class="menu-item" onclick="toggleMenu(); openProfileModal();">✏️ এডিট প্রোফাইল (Edit Profile)</div>
-        <div class="menu-item">🏢 এজেন্সি (Agency)</div>
+        <div class="menu-item" onclick="toggleMenu(); openModal('agency-modal');">🏢 এজেন্সি (Agency)</div>
         <div class="menu-item" onclick="toggleMenu(); openAdminModal();">🔒 এডমিন লগইন (Admin)</div>
         <div class="menu-item" onclick="logout()" style="color:#ff4757;">🚪 লগআউট (Logout)</div>
       </div>
@@ -96,6 +98,7 @@
     </div>
   </div>
 
+  <!-- Auth Screen -->
   <div class="auth-overlay" id="auth-screen">
     <div class="modal-content">
       <h2 id="auth-title">লগইন করুন</h2>
@@ -112,6 +115,7 @@
     </div>
   </div>
 
+  <!-- Main Application Screen -->
   <div id="main-app" style="display:none;">
     <div class="header">
       <div class="user-info">
@@ -137,18 +141,21 @@
       </div>
     </div>
 
+    <!-- Games Section -->
     <div class="card">
       <h2>🎮 রিয়েল-টাইম মাল্টিপ্লেয়ার লুডু</h2>
       <button class="game-btn" style="background:#00b4d8;" onclick="startLudo('Demo Mode')">Play Demo Ludo Board</button>
       <button class="game-btn" style="background:#28a745;" onclick="openModal('match-setup-modal')">⚔️ Play Real Match Setup</button>
     </div>
 
+    <!-- Lottery Section -->
     <div class="card">
       <h2>🏆 সাপ্তাহিক লটারি ড্র</h2>
       <p>প্রাইজ পুল: <strong style="color:#ffb703;">৳২৫,০০০</strong></p>
       <button class="game-btn" style="background: #ffb703; color: #000;" onclick="buyLotteryTicket()">Buy Ticket (৳৫০)</button>
     </div>
 
+    <!-- Public Chat Section -->
     <div class="card">
       <h2>💬 পাবলিক আড্ডা রুম</h2>
       <div class="chat-box" id="chat-messages"></div>
@@ -159,6 +166,35 @@
     </div>
   </div>
 
+  <!-- Agency Partnership Modal -->
+  <div class="modal" id="agency-modal">
+    <div class="modal-content" style="text-align:left;">
+      <button class="close-btn" onclick="closeModal('agency-modal')">X</button>
+      <h3 style="color:#ffb703; text-align:center; margin-bottom:10px;">🏢 এজেন্সী পার্টনারশিপ</h3>
+      
+      <p style="font-size:13px; color:#ddd; margin-bottom:8px;">আমাদের গেম প্ল্যাটফর্মের অফিসিয়াল এজেন্ট হতে সরাসরি হোয়াটসঅ্যাপে যোগাযোগ করুন:</p>
+      
+      <a href="https://wa.me/8801787322043" target="_blank" style="text-decoration:none;">
+        <button class="game-btn" style="background:#25D366; color:white; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:15px;">
+          💬 WhatsApp Contact (+8801787322043)
+        </button>
+      </a>
+
+      <hr style="border: 0.5px solid #333; margin: 10px 0;">
+
+      <h4 style="color:#ffb703; margin-bottom:6px;">গেমের এডমিন/এজেন্ট হতে ফর্মটি পূরণ করুন:</h4>
+      <input type="text" id="agency-name" placeholder="আপনার নাম">
+      <input type="text" id="agency-whatsapp" placeholder="আপনার WhatsApp নম্বর">
+      
+      <button class="game-btn" style="background:#ffb703; color:#000; margin-top:8px;" onclick="submitAgencyForm()">আবেদন জমা দিন</button>
+      
+      <p style="font-size:11px; color:#ff4757; text-align:center; margin-top:10px; font-weight:bold; background: rgba(255, 71, 87, 0.1); padding: 8px; border-radius: 5px; border: 1px dashed #ff4757;">
+        📌 প্যানেলের লোক আপনার সাথে অতি তাড়াতাড়ি যোগাযোগ করবে।
+      </p>
+    </div>
+  </div>
+
+  <!-- Custom Edit Profile Modal -->
   <div class="modal" id="profile-modal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal('profile-modal')">X</button>
@@ -180,6 +216,7 @@
     </div>
   </div>
 
+  <!-- Matchmaking Setup Modal -->
   <div class="modal" id="match-setup-modal">
     <div class="modal-content" style="text-align:left;">
       <button class="close-btn" onclick="closeModal('match-setup-modal')">X</button>
@@ -206,6 +243,7 @@
     </div>
   </div>
 
+  <!-- Waiting Lobby Modal -->
   <div class="modal" id="waiting-lobby-modal">
     <div class="modal-content">
       <h3 style="color:#ffb703;">ম্যাচ খোঁজা হচ্ছে...</h3>
@@ -217,6 +255,7 @@
     </div>
   </div>
 
+  <!-- Deposit Modal -->
   <div class="modal" id="deposit-modal">
     <div class="modal-content" style="text-align:left;">
       <button class="close-btn" onclick="closeModal('deposit-modal')">X</button>
@@ -234,6 +273,7 @@
     </div>
   </div>
 
+  <!-- Withdraw Modal -->
   <div class="modal" id="withdraw-modal">
     <div class="modal-content" style="text-align:left;">
       <button class="close-btn" onclick="closeModal('withdraw-modal')">X</button>
@@ -248,6 +288,7 @@
     </div>
   </div>
 
+  <!-- Interactive Ludo Game Board -->
   <div class="modal" id="ludo-modal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal('ludo-modal')">X</button>
@@ -385,6 +426,27 @@
         
         document.getElementById('user-display-name').innerText = currentUsername;
         if (data.photo) document.getElementById('user-display-photo').src = data.photo;
+      });
+    }
+
+    function submitAgencyForm() {
+      const name = document.getElementById('agency-name').value.trim();
+      const whatsapp = document.getElementById('agency-whatsapp').value.trim();
+
+      if (!name || !whatsapp) {
+        return alert("অনুগ্রহ করে আপনার নাম এবং WhatsApp নম্বরটি দিন!");
+      }
+
+      db.ref('agency_requests').push({
+        name: name,
+        whatsapp: whatsapp,
+        userEmail: currentUserEmail,
+        timestamp: Date.now()
+      }).then(() => {
+        alert("আপনার এজেন্সী ফর্মটি সফলভাবে পাঠানো হয়েছে! প্যানেলের লোক অতি তাড়াতাড়ি আপনার সাথে কথা বলবে।");
+        document.getElementById('agency-name').value = '';
+        document.getElementById('agency-whatsapp').value = '';
+        closeModal('agency-modal');
       });
     }
 
