@@ -3,315 +3,341 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ludo & Tournament Arena</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <title>Ludo Lottery BD</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { background-color: #0b0c10; color: #fff; text-align: center; padding: 10px; overflow-x: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0d0f17; color: #fff; padding: 12px; max-width: 450px; margin: 0 auto; min-height: 100vh; position: relative; }
 
-    .top-bar { display: flex; justify-content: space-between; align-items: center; background: #1f2833; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #45a29e; }
-    .brand-title { font-size: 16px; font-weight: bold; color: #66fcf1; }
+    /* Top Bar */
+    .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 12px; }
+    .brand { font-size: 20px; font-weight: bold; color: #ffb703; display: flex; align-items: center; gap: 8px; }
 
-    .header { background: #1f2833; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #45a29e; }
-    .user-profile { display: flex; align-items: center; justify-content: space-between; background: #0b0c10; padding: 10px 12px; border-radius: 8px; border: 1px solid #333; }
-    .user-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #66fcf1; object-fit: cover; background: #111; }
+    .menu-icon { font-size: 24px; cursor: pointer; color: #ffb703; }
 
-    .wallet-box { background: #0b0c10; padding: 10px; border-radius: 8px; border: 1px solid #66fcf1; margin-top: 10px; }
-    .action-btn-group { display: flex; gap: 10px; margin-top: 10px; }
-    .btn-deposit { background: #28a745; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 50%; }
-    .btn-withdraw { background: #dc3545; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 50%; }
+    /* User Profile & Balance Area */
+    .profile-card { background: #161a26; border: 1px solid #242b3d; border-radius: 16px; padding: 15px; text-align: center; margin-bottom: 15px; }
+    .avatar-wrapper { position: relative; display: inline-block; margin-bottom: 8px; }
+    .user-avatar { width: 65px; height: 65px; border-radius: 50%; border: 3px solid #ffb703; background: #222; }
+    .user-name { font-size: 18px; font-weight: bold; color: #fff; }
+    .user-subtitle { font-size: 11px; color: #8a94a6; }
 
-    .card { background: #1f2833; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #45a29e; text-align: left; }
-    .card h2 { font-size: 15px; margin-bottom: 10px; color: #66fcf1; border-bottom: 1px solid #333; padding-bottom: 6px; }
+    .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0 10px 0; }
+    .balance-box { background: #0d0f17; border-radius: 10px; padding: 10px; border: 1px solid #242b3d; }
+    .balance-box.demo { border-color: #00b4d8; }
+    .balance-box.real { border-color: #ffb703; }
+    .bal-title { font-size: 12px; color: #aaa; margin-bottom: 4px; }
+    .bal-val { font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px; }
 
-    .mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .mode-btn { background: #0b0c10; border: 1px solid #45a29e; color: #fff; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; font-size: 13px; }
-    .mode-btn.active { background: #66fcf1; color: #000; }
+    .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-dep { background: #28a745; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .btn-with { background: #dc3545; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-    .fee-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-    .fee-btn { background: #0b0c10; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; font-size: 12px; }
-    .fee-btn.active { border-color: #66fcf1; color: #66fcf1; }
+    /* Section Cards */
+    .section-card { background: #161a26; border: 1px solid #242b3d; border-radius: 16px; padding: 15px; margin-bottom: 15px; text-align: center; }
+    .section-title { font-size: 16px; color: #ffb703; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-    .game-btn { background: #66fcf1; color: #000; border: none; padding: 12px; font-size: 14px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+    .btn-mode-demo { background: #00b4d8; color: #fff; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; font-size: 15px; margin-bottom: 8px; cursor: pointer; }
+    .btn-mode-real { background: #28a745; color: #fff; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; font-size: 15px; cursor: pointer; }
 
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 100000; }
-    .modal-content { background: #1f2833; padding: 20px; border-radius: 12px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #66fcf1; max-height: 85vh; overflow-y: auto; position: relative; }
-    .close-btn { background: #ff4757; color: white; border: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; position: absolute; right: 15px; top: 15px; font-weight: bold; }
+    .prize-pool { font-size: 20px; font-weight: bold; color: #ffb703; margin: 5px 0 12px 0; }
+    .btn-ticket { background: #ffb703; color: #000; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; font-size: 15px; cursor: pointer; }
 
-    /* Custom Ludo Board Wrapper */
-    .ludo-board-container { position: relative; width: 300px; height: 300px; margin: 15px auto; border: 4px solid #333; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-    #ludoCanvas { width: 100%; height: 100%; display: block; background: #fff; }
+    /* Chat Room */
+    .chat-box { background: #0d0f17; border: 1px solid #242b3d; border-radius: 10px; height: 120px; padding: 8px; text-align: left; overflow-y: auto; font-size: 13px; margin-bottom: 8px; }
+    .chat-msg { margin-bottom: 4px; }
+    .chat-user { color: #ffb703; font-weight: bold; }
+    .chat-input-group { display: flex; gap: 6px; }
+    .chat-input { flex: 1; background: #0d0f17; border: 1px solid #242b3d; border-radius: 6px; padding: 8px; color: #fff; }
+    .btn-send { background: #ffb703; color: #000; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-    /* Central Dice UI Overlay */
-    .center-dice-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 54px; height: 54px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; color: white; border: 3px solid #fff; cursor: pointer; transition: background 0.3s ease; box-shadow: 0 0 10px rgba(0,0,0,0.6); }
+    /* Side Drawer Menu (Overlaid) */
+    .drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
+    .drawer { position: fixed; top: 0; right: 0; width: 80%; max-width: 320px; height: 100%; background: #161a26; border-left: 2px solid #ffb703; z-index: 1001; padding: 20px 15px; display: flex; flex-direction: column; justify-content: space-between; transform: translateX(100%); transition: transform 0.3s ease; }
+    .drawer.active { transform: translateX(0); }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #242b3d; padding-bottom: 12px; margin-bottom: 15px; }
+    .drawer-title { color: #ffb703; font-size: 18px; font-weight: bold; }
+    .btn-close-drawer { background: #ff4757; color: white; border: none; width: 30px; height: 30px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-    .waiting-spinner { width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid #66fcf1; border-radius: 50%; animation: spin 1s linear infinite; margin: 15px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .menu-list { list-style: none; text-align: left; }
+    .menu-item { padding: 12px 10px; border-bottom: 1px solid #242b3d; color: #fff; font-size: 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .menu-item.logout { color: #ff4757; }
+
+    .btn-telegram { background: #0088cc; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+
+    /* Modal / Popup */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+    .modal-content { background: #161a26; border: 1px solid #242b3d; border-radius: 16px; padding: 20px; width: 90%; max-width: 380px; text-align: center; position: relative; }
+
+    /* Ludo Game Board UI */
+    .ludo-container { position: relative; width: 300px; height: 300px; margin: 15px auto; border: 3px solid #333; border-radius: 8px; overflow: hidden; background: #fff; }
+    #ludoCanvas { width: 100%; height: 100%; display: block; }
+    .center-dice { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border-radius: 8px; border: 3px solid #fff; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: bold; color: #fff; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
   </style>
 </head>
 <body>
 
+  <!-- Top Bar -->
   <div class="top-bar">
-    <div class="brand-title">🎲 Ludo Tournament Arena</div>
+    <div class="brand">🎲 Ludo Lottery BD</div>
+    <div class="menu-icon" onclick="toggleDrawer(true)">☰</div>
   </div>
 
-  <!-- Main App Screen -->
-  <div id="main-app">
-    <div class="header">
-      <div class="user-profile">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <img id="user-display-photo" class="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=User123" alt="Avatar">
-          <div style="text-align:left;">
-            <div id="user-display-name" style="font-weight:bold; font-size: 15px; color:#fff;">Player</div>
-          </div>
-        </div>
+  <!-- Profile & Balance Card -->
+  <div class="profile-card">
+    <div class="avatar-wrapper">
+      <img class="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Me" alt="Avatar">
+    </div>
+    <div class="user-name">Me!</div>
+    <div class="user-subtitle">(Public Gamer Identity)</div>
+
+    <div class="balance-grid">
+      <div class="balance-box demo">
+        <div class="bal-title">Demo Coins</div>
+        <div class="bal-val" style="color:#00b4d8;">🟡 <span id="demo-coins-val">1000</span></div>
       </div>
-      
-      <div class="wallet-box">
-        <small style="color:#aaa;">মেইন ব্যালেন্স</small>
-        <h3 style="color:#28a745; margin-top:2px;">৳ <span id="real-val">100.00</span></h3>
+      <div class="balance-box real">
+        <div class="bal-title">Real Balance</div>
+        <div class="bal-val" style="color:#fff;">৳ <span id="real-bal-val">498850.00</span></div>
       </div>
     </div>
 
-    <!-- Matchmaking Card -->
-    <div class="card">
-      <h2>🎮 লুডু ম্যাচ মেকিং</h2>
-      
-      <p style="font-size:12px; color:#ccc; margin-bottom:6px;">১. গেম মোড পছন্দ করুন:</p>
-      <div class="mode-grid">
-        <div class="mode-btn active" onclick="setMode(this, '1v1')">১ বনাম ১ (1v1)</div>
-        <div class="mode-btn" onclick="setMode(this, '1v2')">১ বনাম ২ (1v2)</div>
-        <div class="mode-btn" onclick="setMode(this, '1v3')">১ বনাম ৩ (1v3)</div>
-      </div>
-
-      <p style="font-size:12px; color:#ccc; margin-bottom:6px;">২. এন্ট্রি ফি সিলেক্ট করুন:</p>
-      <div class="fee-grid">
-        <div class="fee-btn active" onclick="setFee(this, 10)">৳১০</div>
-        <div class="fee-btn" onclick="setFee(this, 20)">৳২০</div>
-        <div class="fee-btn" onclick="setFee(this, 50)">৳৫০</div>
-        <div class="fee-btn" onclick="setFee(this, 100)">৳১০০</div>
-      </div>
-
-      <button class="game-btn" onclick="startMatchmaking()">ম্যাচ খুঁজুন & প্রবেশ করুন</button>
+    <div class="action-btns">
+      <button class="btn-dep" onclick="alert('ডিপোজিট সিস্টেম শীঘ্রই চালু হবে')">+ Deposit</button>
+      <button class="btn-with" onclick="alert('উইথড্র সিস্টেম শীঘ্রই চালু হবে')">- Withdraw</button>
     </div>
   </div>
 
-  <!-- Loading / Matching Modal (5 Mins Max) -->
-  <div class="modal" id="loading-modal">
-    <div class="modal-content">
-      <h3 style="color:#66fcf1; margin-bottom:10px;">প্লেয়ার খোঁজা হচ্ছে...</h3>
-      <div class="waiting-spinner"></div>
-      <p style="font-size:13px; color:#ccc;" id="match-status-text">অন্য প্লেয়ারের জন্য অপেক্ষা করা হচ্ছে।</p>
-      <h2 style="color:#ffb703; margin: 15px 0;" id="timer-display">05:00</h2>
-      <p style="font-size:11px; color:#aaa;">৫ মিনিটের মধ্যে প্লেয়ার না পাওয়া গেলে আপনার টাকা আপনার একাউন্টে ফিরিয়ে দেওয়া হবে।</p>
-      <button class="game-btn" style="background:#dc3545; color:white; margin-top:15px;" onclick="cancelMatchmaking()">বাতিল করুন</button>
+  <!-- Real Time Multiplayer Section -->
+  <div class="section-card">
+    <div class="section-title">🎮 রিয়েল-টাইম মাল্টিপ্লেয়ার লুডু</div>
+    <button class="btn-mode-demo" onclick="startLudoGame('demo')">Play Demo Ludo Board</button>
+    <button class="btn-mode-real" onclick="showModeSelection()">⚔️ Play Real Match Setup</button>
+  </div>
+
+  <!-- Weekly Lottery Section -->
+  <div class="section-card">
+    <div class="section-title">🏆 সাপ্তাহিক লটারি ড্র</div>
+    <div class="prize-pool">প্রাইজ পুল: ৳২৫,০০০</div>
+    <button class="btn-ticket" onclick="buyTicket()">Buy Ticket (৳৫০)</button>
+  </div>
+
+  <!-- Public Chat Room -->
+  <div class="section-card">
+    <div class="section-title">💬 পাবলিক আড্ডা রুম</div>
+    <div class="chat-box" id="chat-box">
+      <div class="chat-msg"><span class="chat-user">shadugaming445:</span> Hi</div>
+      <div class="chat-msg"><span class="chat-user">iconmurad445:</span> Hello</div>
+      <div class="chat-msg"><span class="chat-user">iconmurad445:</span> Hi</div>
+      <div class="chat-msg"><span class="chat-user">Me!:</span> Hi</div>
+      <div class="chat-msg"><span class="chat-user">Gamer:</span> Kemon aco sobai</div>
+    </div>
+    <div class="chat-input-group">
+      <input type="text" id="chat-input" class="chat-input" placeholder="মেসেজ লিখুন...">
+      <button class="btn-send" onclick="sendChatMessage()">Send</button>
     </div>
   </div>
 
-  <!-- Ludo Game Modal -->
+  <!-- Drawer Menu -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer(false)"></div>
+  <div class="drawer" id="drawer">
+    <div>
+      <div class="drawer-header">
+        <div class="drawer-title">মেনু অপশন</div>
+        <button class="btn-close-drawer" onclick="toggleDrawer(false)">X</button>
+      </div>
+      <ul class="menu-list">
+        <li class="menu-item" onclick="alert('প্রোফাইল এডিট ফিচার আপডেট হচ্ছে')">✏️ এডিট প্রোফাইল (Edit Profile)</li>
+        <li class="menu-item" onclick="adminLogin()">🔒 এডমিন লগইন (Admin)</li>
+        <li class="menu-item logout" onclick="alert('লগআউট করা হয়েছে')">🚪 লগআউট (Logout)</li>
+      </ul>
+    </div>
+    <div>
+      <button class="btn-telegram" onclick="window.open('https://t.me', '_blank')">✈️ হেল্প সেন্টার (Telegram)</button>
+    </div>
+  </div>
+
+  <!-- Ludo Match Canvas Modal -->
   <div class="modal" id="ludo-modal">
-    <div class="modal-content" style="max-width: 340px;">
-      <button class="close-btn" onclick="closeModal('ludo-modal')">X</button>
-      <h3 id="ludo-title" style="color:#66fcf1; font-size:16px;">Ludo Match</h3>
-      <p style="font-size:12px; margin-top:4px;">বর্তমান চাল: <strong id="current-player-name" style="color:#e63946;">Red Player</strong></p>
-      
-      <!-- Custom Board Canvas -->
-      <div class="ludo-board-container">
+    <div class="modal-content">
+      <button class="btn-close-drawer" style="position:absolute; right:15px; top:15px;" onclick="quitGame()">X</button>
+      <h3 style="color:#66fcf1; margin-bottom: 4px;">Ludo Match</h3>
+      <p style="font-size:12px;">বর্তমান চাল: <strong id="current-player-text" style="color:#ffb703;">Yellow Player</strong></p>
+
+      <div class="ludo-container">
         <canvas id="ludoCanvas" width="300" height="300"></canvas>
-        <!-- Dynamic Center Dice -->
-        <div class="center-dice-box" id="center-dice" onclick="rollDice()" style="background: #e63946;">
-          <span id="dice-value">🎲</span>
+        <div class="center-dice" id="center-dice" onclick="rollDice()" style="background: #ffb703;">
+          <span id="dice-value">4</span>
         </div>
       </div>
-
       <p style="font-size:12px; color:#aaa;">সেন্টারের ডাইসে ট্যাপ করে চাল দিন</p>
     </div>
   </div>
 
   <script>
-    let currentBalance = 100.00;
-    let selectedMode = '1v1';
-    let selectedFee = 10;
-    let matchTimer = null;
-    let timeLeft = 300; // 5 Minutes in Seconds
-
-    // Player Colors
+    let demoCoins = 1000;
+    let realBalance = 498850.00;
+    let currentMode = 'demo';
+    let currentTurnIndex = 2; // Yellow Player Default from Screenshot
+    const players = ['Red', 'Green', 'Yellow', 'Blue'];
     const playerColors = {
       Red: '#e63946',
       Green: '#2a9d8f',
       Yellow: '#ffb703',
       Blue: '#00b4d8'
     };
-    const playerOrder = ['Red', 'Green', 'Yellow', 'Blue'];
-    let currentTurnIndex = 0;
 
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    function setMode(elem, mode) {
-      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-      elem.classList.add('active');
-      selectedMode = mode;
+    function toggleDrawer(open) {
+      document.getElementById('drawer').classList.toggle('active', open);
+      document.getElementById('drawer-overlay').style.display = open ? 'block' : 'none';
     }
 
-    function setFee(elem, fee) {
-      document.querySelectorAll('.fee-btn').forEach(btn => btn.classList.remove('active'));
-      elem.classList.add('active');
-      selectedFee = fee;
-    }
-
-    function startMatchmaking() {
-      if (currentBalance < selectedFee) {
-        return alert("আপনার একাউন্টে পর্যাপ্ত ব্যালেন্স নেই! ডিপোজিট করুন।");
+    function adminLogin() {
+      const pass = prompt("এডমিন পাসওয়ার্ড লিখুন:");
+      if (pass === "admin123") {
+        alert("এডমিন ড্যাশবোর্ডে স্বাগতম!");
+      } else if(pass) {
+        alert("ভুল পাসওয়ার্ড!");
       }
+    }
 
-      openModal('loading-modal');
-      timeLeft = 300;
-      updateTimerDisplay();
+    function buyTicket() {
+      if (realBalance >= 50) {
+        realBalance -= 50;
+        document.getElementById('real-bal-val').innerText = realBalance.toFixed(2);
+        alert("লটারি টিকিট সফলভাবে কেনা হয়েছে!");
+      } else {
+        alert("পর্যাপ্ত রিয়েল ব্যালেন্স নেই!");
+      }
+    }
 
-      matchTimer = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay();
+    function sendChatMessage() {
+      const input = document.getElementById('chat-input');
+      if (input.value.trim() !== "") {
+        const chatBox = document.getElementById('chat-box');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-msg';
+        msgDiv.innerHTML = `<span class="chat-user">Me!:</span> ${input.value}`;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        input.value = "";
+      }
+    }
 
-        // Simulated Join (Demo purpose: Join after 5 seconds)
-        if (timeLeft === 295) {
-          clearInterval(matchTimer);
-          closeModal('loading-modal');
-          // Deduct Fee
-          currentBalance -= selectedFee;
-          document.getElementById('real-val').innerText = currentBalance.toFixed(2);
-          launchLudoGame();
+    function showModeSelection() {
+      const fee = prompt("ম্যাচ এন্ট্রি ফি লিখুন (৳১০, ৳২০, ৳৫০, ৳১০০):", "10");
+      if (fee) {
+        if (realBalance >= parseFloat(fee)) {
+          alert("প্লেয়ার খোঁজা হচ্ছে... ৫ মিনিট ওয়েট করতে হবে।");
+          realBalance -= parseFloat(fee);
+          document.getElementById('real-bal-val').innerText = realBalance.toFixed(2);
+          startLudoGame('real');
+        } else {
+          alert("পর্যাপ্ত ব্যালেন্স নেই!");
         }
-
-        if (timeLeft <= 0) {
-          clearInterval(matchTimer);
-          closeModal('loading-modal');
-          alert("কোনো প্লেয়ার পাওয়া যায়নি! আপনার ব্যালেন্স অপরিবর্তিত রয়েছে।");
-        }
-      }, 1000);
+      }
     }
 
-    function cancelMatchmaking() {
-      clearInterval(matchTimer);
-      closeModal('loading-modal');
-      alert("ম্যাচ খোঁজা বাতিল করা হয়েছে। টাকা কাটিং করা হয়নি।");
+    function startLudoGame(mode) {
+      currentMode = mode;
+      document.getElementById('ludo-modal').style.display = 'flex';
+      updateTurn();
+      setTimeout(drawBoard, 100);
     }
 
-    function updateTimerDisplay() {
-      const minutes = Math.floor(timeLeft / 60);
-      const seconds = timeLeft % 60;
-      document.getElementById('timer-display').innerText = 
-        `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-    }
-
-    /* GAME & BOARD LOGIC */
-    function launchLudoGame() {
-      openModal('ludo-modal');
-      currentTurnIndex = 0;
-      updateTurnUI();
-      setTimeout(drawLudoBoard, 100);
+    function quitGame() {
+      if (confirm("আপনি কি গেম থেকে বের হতে চান? মাঝপথে বের হলে এন্ট্রি ফি কেটে নেওয়া হবে!")) {
+        document.getElementById('ludo-modal').style.display = 'none';
+      }
     }
 
     function rollDice() {
-      const diceRoll = Math.floor(Math.random() * 6) + 1;
-      document.getElementById('dice-value').innerText = diceRoll;
-
-      // Turn Next Player
+      const diceVal = Math.floor(Math.random() * 6) + 1;
+      document.getElementById('dice-value').innerText = diceVal;
       currentTurnIndex = (currentTurnIndex + 1) % 4;
-      updateTurnUI();
+      updateTurn();
     }
 
-    function updateTurnUI() {
-      const activeColorName = playerOrder[currentTurnIndex];
-      const activeHexColor = playerColors[activeColorName];
+    function updateTurn() {
+      const colorName = players[currentTurnIndex];
+      const hexColor = playerColors[colorName];
+      const textElem = document.getElementById('current-player-text');
+      textElem.innerText = colorName + " Player";
+      textElem.style.color = hexColor;
 
-      const turnText = document.getElementById('current-player-name');
-      turnText.innerText = activeColorName + " Player";
-      turnText.style.color = activeHexColor;
-
-      // Dynamic Center Dice Color Change
-      const centerDice = document.getElementById('center-dice');
-      centerDice.style.background = activeHexColor;
+      const diceBox = document.getElementById('center-dice');
+      diceBox.style.background = hexColor;
     }
 
-    /* CUSTOM LUDO CANVAS DRAWING */
-    function drawLudoBoard() {
+    /* DRAW LUDO BOARD WITH PAWNS */
+    function drawBoard() {
       const canvas = document.getElementById('ludoCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, 300, 300);
 
       const size = 300;
-      const boxSize = size / 15;
+      const box = size / 15;
 
-      // Background Base Homes
-      ctx.fillStyle = playerColors.Red; ctx.fillRect(0, 0, boxSize * 6, boxSize * 6);
-      ctx.fillStyle = playerColors.Green; ctx.fillRect(boxSize * 9, 0, boxSize * 6, boxSize * 6);
-      ctx.fillStyle = playerColors.Yellow; ctx.fillRect(0, boxSize * 9, boxSize * 6, boxSize * 6);
-      ctx.fillStyle = playerColors.Blue; ctx.fillRect(boxSize * 9, boxSize * 9, boxSize * 6, boxSize * 6);
+      // Base Homes
+      ctx.fillStyle = playerColors.Red; ctx.fillRect(0, 0, box * 6, box * 6);
+      ctx.fillStyle = playerColors.Green; ctx.fillRect(box * 9, 0, box * 6, box * 6);
+      ctx.fillStyle = playerColors.Yellow; ctx.fillRect(0, box * 9, box * 6, box * 6);
+      ctx.fillStyle = playerColors.Blue; ctx.fillRect(box * 9, box * 9, box * 6, box * 6);
 
-      // Inner White Circles inside Base Homes
+      // Inner White Boxes
       ctx.fillStyle = "#fff";
-      ctx.fillRect(boxSize, boxSize, boxSize * 4, boxSize * 4);
-      ctx.fillRect(boxSize * 10, boxSize, boxSize * 4, boxSize * 4);
-      ctx.fillRect(boxSize, boxSize * 10, boxSize * 4, boxSize * 4);
-      ctx.fillRect(boxSize * 10, boxSize * 10, boxSize * 4, boxSize * 4);
+      ctx.fillRect(box, box, box * 4, box * 4);
+      ctx.fillRect(box * 10, box, box * 4, box * 4);
+      ctx.fillRect(box, box * 10, box * 4, box * 4);
+      ctx.fillRect(box * 10, box * 10, box * 4, box * 4);
 
-      // Draw Pawns inside Home Base
-      drawPawn(ctx, boxSize * 2, boxSize * 2, playerColors.Red);
-      drawPawn(ctx, boxSize * 4, boxSize * 2, playerColors.Red);
-      drawPawn(ctx, boxSize * 2, boxSize * 4, playerColors.Red);
-      drawPawn(ctx, boxSize * 4, boxSize * 4, playerColors.Red);
+      // Pawns (গুটি) inside Bases
+      drawPawn(ctx, box * 2, box * 2, playerColors.Red);
+      drawPawn(ctx, box * 4, box * 2, playerColors.Red);
+      drawPawn(ctx, box * 2, box * 4, playerColors.Red);
+      drawPawn(ctx, box * 4, box * 4, playerColors.Red);
 
-      drawPawn(ctx, boxSize * 11, boxSize * 2, playerColors.Green);
-      drawPawn(ctx, boxSize * 13, boxSize * 2, playerColors.Green);
-      drawPawn(ctx, boxSize * 11, boxSize * 4, playerColors.Green);
-      drawPawn(ctx, boxSize * 13, boxSize * 4, playerColors.Green);
+      drawPawn(ctx, box * 11, box * 2, playerColors.Green);
+      drawPawn(ctx, box * 13, box * 2, playerColors.Green);
+      drawPawn(ctx, box * 11, box * 4, playerColors.Green);
+      drawPawn(ctx, box * 13, box * 4, playerColors.Green);
 
-      drawPawn(ctx, boxSize * 2, boxSize * 11, playerColors.Yellow);
-      drawPawn(ctx, boxSize * 4, boxSize * 11, playerColors.Yellow);
-      drawPawn(ctx, boxSize * 2, boxSize * 13, playerColors.Yellow);
-      drawPawn(ctx, boxSize * 4, boxSize * 13, playerColors.Yellow);
+      drawPawn(ctx, box * 2, box * 11, playerColors.Yellow);
+      drawPawn(ctx, box * 4, box * 11, playerColors.Yellow);
+      drawPawn(ctx, box * 2, box * 13, playerColors.Yellow);
+      drawPawn(ctx, box * 4, box * 13, playerColors.Yellow);
 
-      drawPawn(ctx, boxSize * 11, boxSize * 11, playerColors.Blue);
-      drawPawn(ctx, boxSize * 13, boxSize * 11, playerColors.Blue);
-      drawPawn(ctx, boxSize * 11, boxSize * 13, playerColors.Blue);
-      drawPawn(ctx, boxSize * 13, boxSize * 13, playerColors.Blue);
+      drawPawn(ctx, box * 11, box * 11, playerColors.Blue);
+      drawPawn(ctx, box * 13, box * 11, playerColors.Blue);
+      drawPawn(ctx, box * 11, box * 13, playerColors.Blue);
+      drawPawn(ctx, box * 13, box * 13, playerColors.Blue);
 
       // Grid Lines
       ctx.strokeStyle = "#ccc";
       ctx.lineWidth = 1;
 
       for (let i = 0; i <= 15; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * boxSize, 0);
-        ctx.lineTo(i * boxSize, size);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(0, i * boxSize);
-        ctx.lineTo(size, i * boxSize);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i * box, 0); ctx.lineTo(i * box, size); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i * box); ctx.lineTo(size, i * box); ctx.stroke();
       }
 
-      // Home Paths Bolding
-      ctx.fillStyle = playerColors.Red; ctx.fillRect(boxSize, boxSize * 7, boxSize * 5, boxSize);
-      ctx.fillStyle = playerColors.Green; ctx.fillRect(boxSize * 7, boxSize, boxSize, boxSize * 5);
-      ctx.fillStyle = playerColors.Blue; ctx.fillRect(boxSize * 9, boxSize * 7, boxSize * 5, boxSize);
-      ctx.fillStyle = playerColors.Yellow; ctx.fillRect(boxSize * 7, boxSize * 9, boxSize, boxSize * 5);
+      // Home Paths
+      ctx.fillStyle = playerColors.Red; ctx.fillRect(box, box * 7, box * 5, box);
+      ctx.fillStyle = playerColors.Green; ctx.fillRect(box * 7, box, box, box * 5);
+      ctx.fillStyle = playerColors.Blue; ctx.fillRect(box * 9, box * 7, box * 5, box);
+      ctx.fillStyle = playerColors.Yellow; ctx.fillRect(box * 7, box * 9, box, box * 5);
 
-      // Center Box Space (Left Empty for Dice overlay)
+      // Center Box
       ctx.fillStyle = "#111";
-      ctx.fillRect(boxSize * 6, boxSize * 6, boxSize * 3, boxSize * 3);
+      ctx.fillRect(box * 6, box * 6, box * 3, box * 3);
     }
 
     function drawPawn(ctx, x, y, color) {
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.arc(x, y, 9, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "#fff";
+      ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 2;
       ctx.stroke();
     }
