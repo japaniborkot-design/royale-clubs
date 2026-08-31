@@ -7,128 +7,117 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { background-color: #0f0f15; color: #fff; text-align: center; padding: 15px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background-color: #0f0f15; color: #fff; text-align: center; padding: 10px; }
     
-    /* Logo Header */
-    .app-logo { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #ffb703; margin-bottom: 5px; box-shadow: 0 0 10px #ffb703; }
-    .header { background: #1a1a24; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #2d2d3f; }
+    .header { background: #1a1a24; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #2d2d3f; }
+    .user-info { font-size: 13px; color: #ffb703; margin-bottom: 5px; word-break: break-all; }
+    .wallet-container { display: flex; justify-content: space-around; margin-top: 8px; }
+    .wallet-box { background: #252538; padding: 8px; border-radius: 8px; border: 1px solid #ffb703; width: 45%; }
     
-    .wallet-container { display: flex; justify-content: space-around; margin-top: 10px; }
-    .wallet-box { background: #252538; padding: 10px; border-radius: 8px; border: 1px solid #ffb703; width: 45%; cursor: pointer; }
-    .demo-box { border-color: #00b4d8; }
-    
-    .action-btn-group { display: flex; justify-content: space-between; margin-top: 12px; gap: 8px; }
+    .action-btn-group { display: flex; justify-content: space-between; margin-top: 10px; gap: 8px; }
     .btn-deposit { background: #28a745; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 50%; }
     .btn-withdraw { background: #e63946; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 50%; }
 
-    .card { background: #1a1a24; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #2d2d3f; }
-    h2 { font-size: 17px; margin-bottom: 10px; color: #ffb703; }
-    .game-btn { background: #e63946; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 6px; cursor: pointer; margin: 5px 0; width: 100%; font-weight: bold; }
-    .demo-btn { background: #00b4d8; }
+    .card { background: #1a1a24; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #2d2d3f; }
+    h2 { font-size: 16px; margin-bottom: 8px; color: #ffb703; }
+    .game-btn { background: #e63946; color: white; border: none; padding: 10px; font-size: 14px; border-radius: 6px; cursor: pointer; margin: 4px 0; width: 100%; font-weight: bold; }
 
-    /* Modals & Popups */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 100; }
-    .modal-content { background: #222230; padding: 20px; border-radius: 12px; width: 85%; max-width: 400px; text-align: left; border: 1px solid #ffb703; }
-    .modal-content input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #444; background: #111; color: white; }
-    .close-btn { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; float: right; font-weight: bold; }
-    .submit-btn { background: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    /* Auth Overlay Screen */
+    .auth-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f15; justify-content: center; align-items: center; z-index: 999; }
+    .modal-content { background: #1a1a24; padding: 20px; border-radius: 12px; width: 90%; max-width: 360px; text-align: center; border: 1px solid #ffb703; }
+    .modal-content input { width: 100%; padding: 10px; margin: 6px 0; border-radius: 5px; border: 1px solid #444; background: #111; color: white; font-size: 14px; outline: none; }
+    
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; }
+    .close-btn { background: #ff4757; color: white; border: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; float: right; font-weight: bold; }
 
-    .ludo-board { background: #252538; width: 220px; height: 220px; margin: 15px auto; border: 3px solid #ffb703; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 10px; }
-    .dice-box { font-size: 45px; background: #fff; width: 70px; height: 70px; line-height: 70px; border-radius: 10px; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
-
-    .chat-box { background: #11111a; height: 130px; border-radius: 5px; padding: 10px; overflow-y: auto; text-align: left; font-size: 13px; margin-bottom: 8px; border: 1px solid #333; }
-    .chat-input { width: 70%; padding: 8px; border-radius: 4px; border: 1px solid #444; background: #111; color: white; }
-    .send-btn { width: 26%; padding: 8px; background: #ffb703; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: #000; }
+    .chat-box { background: #11111a; height: 110px; border-radius: 5px; padding: 8px; overflow-y: auto; text-align: left; font-size: 12px; margin-bottom: 6px; border: 1px solid #333; }
+    .chat-input { width: 70%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #111; color: white; }
+    .send-btn { width: 26%; padding: 6px; background: #ffb703; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: #000; }
+    .logout-btn { background: #555; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-left: 5px; }
   </style>
 </head>
 <body>
 
-  <!-- Header Section with Logo -->
-  <div class="header">
-    <img src="https://img.freepik.com/free-vector/casino-gambling-vector-illustration-with-dice-chips-gold-coins_1284-48206.jpg" class="app-logo" alt="Ludo Lottery Logo">
-    <h1>Ludo Lottery BD</h1>
-    <div class="wallet-container">
-      <div class="wallet-box demo-box" onclick="alert('ডেমো কয়েন ক্যাশ করা যাবে না। অনুশীলনের জন্য ব্যবহার করুন।')">
-        <small>Demo Coins</small>
-        <h3 id="demo-balance">🪙 1,000</h3>
+  <!-- Auth Screen (Gmail & Password) -->
+  <div class="auth-overlay" id="auth-screen">
+    <div class="modal-content">
+      <h2 id="auth-title">লগইন করুন</h2>
+      <input type="email" id="auth-email" placeholder="আপনার জিমেইল (Gmail)">
+      <input type="password" id="auth-pass" placeholder="পাসওয়ার্ড">
+      <input type="password" id="auth-confirm-pass" placeholder="কনফার্ম পাসওয়ার্ড" style="display:none;">
+      
+      <button class="game-btn" id="auth-submit-btn" style="background:#28a745;" onclick="handleAuth()">লগইন</button>
+      
+      <p style="font-size: 12px; margin-top: 12px; color: #aaa;">
+        <span id="auth-toggle-msg">একাউন্ট নেই?</span> 
+        <a href="javascript:void(0)" id="auth-toggle-link" style="color:#ffb703; font-weight:bold;" onclick="toggleAuthMode()">রেজিস্ট্রেশন করুন</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Main App View -->
+  <div id="main-app" style="display:none;">
+    <div class="header">
+      <div class="user-info">
+        👤 ইউজার: <strong id="user-display-email">---</strong>
+        <button class="logout-btn" onclick="logout()">লগআউট</button>
       </div>
-      <div class="wallet-box" onclick="openModal('withdraw-modal')">
-        <small>Real Balance</small>
-        <h3 id="real-balance">৳ <span id="real-val">0.00</span></h3>
+      <div class="wallet-container">
+        <div class="wallet-box" style="border-color:#00b4d8;">
+          <small>Demo Coins</small>
+          <h3 id="demo-balance">🪙 1,000</h3>
+        </div>
+        <div class="wallet-box">
+          <small>Real Balance</small>
+          <h3 id="real-balance">৳ <span id="real-val">0.00</span></h3>
+        </div>
+      </div>
+      <div class="action-btn-group">
+        <button class="btn-deposit" onclick="openModal('deposit-modal')">+ Deposit</button>
+        <button class="btn-withdraw" onclick="openModal('withdraw-modal')">- Withdraw</button>
       </div>
     </div>
-    <div class="action-btn-group">
-      <button class="btn-deposit" onclick="openModal('deposit-modal')">+ Deposit</button>
-      <button class="btn-withdraw" onclick="openModal('withdraw-modal')">- Withdraw</button>
+
+    <div class="card">
+      <h2>🎮 লটারি ও গেম</h2>
+      <button class="game-btn" style="background:#00b4d8;" onclick="alert('গেম চালু হচ্ছে...')">Play Demo Ludo</button>
+      <button class="game-btn" onclick="alert('রিয়েল গেম শীঘ্রই আসছে!')">Play Real Ludo (৳50)</button>
     </div>
-  </div>
 
-  <!-- Ludo Games Section -->
-  <div class="card">
-    <h2>🎮 লুডু গেম সেকশন</h2>
-    <button class="game-btn demo-btn" onclick="openLudoGame('Demo Mode')">Play Demo Ludo (Free)</button>
-    <button class="game-btn" onclick="openLudoGame('Real Mode')">Play Real Ludo (৳50)</button>
-  </div>
-
-  <!-- Weekly Lottery Section -->
-  <div class="card">
-    <h2>🏆 সাপ্তাহিক লটারি ড্র</h2>
-    <p style="margin-bottom:8px;">বর্তমান প্রাইজ পুল: <strong style="color:#ffb703;">৳২৫,০০০</strong></p>
-    <button class="game-btn" style="background: #ffb703; color: #000;" onclick="buyLotteryTicket()">Buy Ticket (৳৫০)</button>
-  </div>
-
-  <!-- Public Chat Section -->
-  <div class="card">
-    <h2>💬 পাবলিক আড্ডা রুম</h2>
-    <div class="chat-box" id="chat-messages">
-      <div><strong style="color:#ffb703;">System:</strong> অ্যাপে স্বাগতম! এখানে সবাই মেসেজ করতে পারবেন।</div>
-    </div>
-    <div style="display:flex; justify-content:space-between;">
-      <input type="text" id="chat-input" class="chat-input" placeholder="মেসেজ লিখুন...">
-      <button class="send-btn" onclick="sendChatMessage()">Send</button>
+    <div class="card">
+      <h2>💬 পাবলিক আড্ডা রুম</h2>
+      <div class="chat-box" id="chat-messages"></div>
+      <div style="display:flex; justify-content:space-between;">
+        <input type="text" id="chat-input" class="chat-input" placeholder="মেসেজ লিখুন...">
+        <button class="send-btn" onclick="sendChatMessage()">Send</button>
+      </div>
     </div>
   </div>
 
   <!-- Deposit Modal -->
   <div class="modal" id="deposit-modal">
-    <div class="modal-content">
+    <div class="modal-content" style="text-align:left;">
       <button class="close-btn" onclick="closeModal('deposit-modal')">X</button>
-      <h3 style="color:#ffb703; margin-bottom:10px;">ডিপোজিট করুন</h3>
-      <p style="font-size:12px; color:#fff; background:#333; padding:8px; border-radius:5px; margin-bottom:8px;">
-        নগদ পার্সোনাল নম্বর: <strong style="color:#ffb703;">01787322043</strong> (Send Money)
-      </p>
-      <input type="number" id="dep-amount" placeholder="টাকার পরিমাণ (যেমন: 50)">
+      <h3 style="color:#ffb703;">ডিপোজিট করুন</h3>
+      <p style="font-size:12px; color:#fff; background:#333; padding:5px; margin:5px 0;">নগদ/বিকাশ নম্বর: <strong>01787322043</strong></p>
+      <input type="number" id="dep-amount" placeholder="টাকার পরিমাণ">
       <input type="text" id="dep-trx" placeholder="Transaction ID (TrxID)">
-      <input type="text" id="dep-phone" placeholder="আপনার নগদ নম্বর">
-      <button class="submit-btn" onclick="submitDeposit()">রিকোয়েস্ট পাঠান</button>
+      <button class="game-btn" style="background:#28a745;" onclick="submitDeposit()">পাঠিয়ে দিন</button>
     </div>
   </div>
 
   <!-- Withdraw Modal -->
   <div class="modal" id="withdraw-modal">
-    <div class="modal-content">
+    <div class="modal-content" style="text-align:left;">
       <button class="close-btn" onclick="closeModal('withdraw-modal')">X</button>
-      <h3 style="color:#ffb703; margin-bottom:10px;">টাকা উইথড্র করুন</h3>
-      <input type="number" id="with-amount" placeholder="উইথড্র পরিমাণ (টাকা)">
+      <h3 style="color:#ffb703;">উইথড্র করুন</h3>
+      <input type="number" id="with-amount" placeholder="পরিমাণ (টাকা)">
       <input type="text" id="with-phone" placeholder="বিকাশ/নগদ নম্বর">
-      <button class="submit-btn" style="background:#e63946;" onclick="submitWithdraw()">উইথড্র রিকোয়েস্ট দিন</button>
+      <button class="game-btn" onclick="submitWithdraw()">রিকোয়েস্ট দিন</button>
     </div>
   </div>
 
-  <!-- Ludo Game Modal -->
-  <div class="modal" id="ludo-modal">
-    <div class="modal-content" style="text-align:center;">
-      <button class="close-btn" onclick="closeModal('ludo-modal')">X</button>
-      <h3 id="ludo-title" style="color:#ffb703;">Ludo Board</h3>
-      <div class="ludo-board">
-        <p id="ludo-status" style="font-size:13px; color:#aaa;">ছক্কা রোল করতে ডাইসে চাপ দিন</p>
-        <div class="dice-box" id="dice-val" onclick="rollDice()">🎲</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- JavaScript Logic -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAz3s7sdeeaKlrmUmzRGO4DpdN4siiOp9k",
@@ -143,104 +132,126 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let userId = localStorage.getItem("ludo_user_id");
-    if(!userId) {
-      userId = "User_" + Math.floor(1000 + Math.random() * 9000);
-      localStorage.setItem("ludo_user_id", userId);
+    let currentUserKey = localStorage.getItem("ludo_user_key");
+    let currentUserEmail = localStorage.getItem("ludo_user_email");
+    let isRegisterMode = false;
+
+    if (currentUserKey && currentUserEmail) {
+      showMainApp(currentUserKey, currentUserEmail);
     }
 
-    let realBalance = 0;
-    let demoCoins = 1000;
+    function toggleAuthMode() {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('auth-title').innerText = isRegisterMode ? "নতুন একাউন্ট খুলুন" : "লগইন করুন";
+      document.getElementById('auth-submit-btn').innerText = isRegisterMode ? "রেজিস্ট্রেশন করুন" : "লগইন করুন";
+      document.getElementById('auth-toggle-msg').innerText = isRegisterMode ? "একাউন্ট আছে?" : "একাউন্ট নেই?";
+      document.getElementById('auth-toggle-link').innerText = isRegisterMode ? "লগইন করুন" : "রেজিস্ট্রেশন করুন";
+      document.getElementById('auth-confirm-pass').style.display = isRegisterMode ? "block" : "none";
+    }
 
-    // Firebase Sync
-    db.ref('users/' + userId).on('value', (snapshot) => {
-      const data = snapshot.val();
-      if(data) {
-        demoCoins = data.demo_coins !== undefined ? data.demo_coins : 1000;
-        realBalance = data.real_balance || 0;
+    function sanitizeKey(email) {
+      return email.replace(/[^a-zA-Z0-9]/g, "_");
+    }
+
+    function handleAuth() {
+      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const pass = document.getElementById('auth-pass').value.trim();
+      const confirmPass = document.getElementById('auth-confirm-pass').value.trim();
+
+      if (!email || !pass) return alert("জিমেইল এবং পাসওয়ার্ড দিন!");
+      if (!email.includes("@") || !email.includes(".")) return alert("সঠিক জিমেইল এড্রেস দিন!");
+
+      const userKey = sanitizeKey(email);
+      const userRef = db.ref('users_accounts/' + userKey);
+
+      if (isRegisterMode) {
+        if (pass !== confirmPass) return alert("দুইটি পাসওয়ার্ড মিলছে না!");
+        if (pass.length < 4) return alert("পাসওয়ার্ড অন্তত ৪ অক্ষরের দিন!");
+
+        userRef.once('value', (snapshot) => {
+          if (snapshot.exists()) {
+            alert("এই জিমেইলে ইতিপূর্বে একাউন্ট খোলা হয়েছে! লগইন করুন।");
+          } else {
+            userRef.set({ email: email, password: pass, real_balance: 0, demo_coins: 1000 })
+              .then(() => {
+                alert("একাউন্ট সফলভাবে খোলা হয়েছে!");
+                loginSuccess(userKey, email);
+              });
+          }
+        });
       } else {
-        db.ref('users/' + userId).set({ demo_coins: 1000, real_balance: 0 });
+        userRef.once('value', (snapshot) => {
+          if (snapshot.exists() && snapshot.val().password === pass) {
+            loginSuccess(userKey, email);
+          } else {
+            alert("জিমেইল অথবা পাসওয়ার্ড ভুল হয়েছে!");
+          }
+        });
       }
-      document.getElementById('demo-balance').innerText = '🪙 ' + demoCoins;
-      document.getElementById('real-val').innerText = realBalance.toFixed(2);
-    });
+    }
+
+    function loginSuccess(key, email) {
+      localStorage.setItem("ludo_user_key", key);
+      localStorage.setItem("ludo_user_email", email);
+      currentUserKey = key;
+      currentUserEmail = email;
+      showMainApp(key, email);
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.reload();
+    }
+
+    function showMainApp(key, email) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('main-app').style.display = 'block';
+      document.getElementById('user-display-email').innerText = email;
+
+      db.ref('users_accounts/' + key).on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        const demoCoins = data.demo_coins !== undefined ? data.demo_coins : 1000;
+        const realBalance = data.real_balance || 0;
+        document.getElementById('demo-balance').innerText = '🪙 ' + demoCoins;
+        document.getElementById('real-val').innerText = realBalance.toFixed(2);
+      });
+    }
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // Deposit System
     function submitDeposit() {
       const amount = parseFloat(document.getElementById('dep-amount').value);
       const trx = document.getElementById('dep-trx').value;
-      const phone = document.getElementById('dep-phone').value;
-      if(!amount || !trx || !phone) { alert("সব ঘর পূরণ করুন!"); return; }
+      if (!amount || !trx) return alert("সব তথ্য দিন!");
 
-      db.ref('deposit_requests').push({ userId, amount, trx, phone, status: 'pending', time: Date.now() });
-      alert("ডিপোজিট রিকোয়েস্ট পাঠানো হয়েছে!");
-      closeModal('deposit-modal');
+      db.ref('deposit_requests').push({ userId: currentUserKey, email: currentUserEmail, amount, trx, status: 'pending', time: Date.now() })
+        .then(() => { alert("ডিপোজিট রিকোয়েস্ট সফল হয়েছে!"); closeModal('deposit-modal'); });
     }
 
-    // Withdraw System
     function submitWithdraw() {
       const amount = parseFloat(document.getElementById('with-amount').value);
       const phone = document.getElementById('with-phone').value;
-      if(!amount || !phone) { alert("সব ঘর পূরণ করুন!"); return; }
-      if(amount > realBalance) { alert("পর্যাপ্ত ব্যালেন্স নেই!"); return; }
+      if (!amount || !phone) return alert("সব তথ্য দিন!");
 
-      db.ref('users/' + userId).update({ real_balance: realBalance - amount });
-      db.ref('withdraw_requests').push({ userId, amount, phone, status: 'pending', time: Date.now() });
-      alert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
-      closeModal('withdraw-modal');
+      db.ref('withdraw_requests').push({ userId: currentUserKey, email: currentUserEmail, amount, phone, status: 'pending', time: Date.now() })
+        .then(() => { alert("উইথড্র রিকোয়েস্ট সফল হয়েছে!"); closeModal('withdraw-modal'); });
     }
 
-    // Lottery Ticket Purchase
-    function buyLotteryTicket() {
-      if(realBalance < 50) {
-        alert("লটারির টিকিট কিনতে ৳৫০ লাগবে। আগে ডিপোজিট করুন!");
-        openModal('deposit-modal');
-      } else {
-        db.ref('users/' + userId).update({ real_balance: realBalance - 50 });
-        db.ref('lottery_tickets').push({ userId, time: Date.now() });
-        alert("অভিনন্দন! লটারি টিকিট কেনা সম্পন্ন হয়েছে।");
-      }
-    }
-
-    // Ludo Engine Logic
-    function openLudoGame(mode) {
-      if(mode === 'Real Mode' && realBalance < 50) {
-        alert("রিয়েল লুডু খেলতে ৳৫০ ব্যালেন্স প্রয়োজন!");
-        openModal('deposit-modal');
-        return;
-      }
-      document.getElementById('ludo-title').innerText = "Ludo Board (" + mode + ")";
-      openModal('ludo-modal');
-    }
-
-    function rollDice() {
-      const dice = Math.floor(Math.random() * 6) + 1;
-      document.getElementById('dice-val').innerText = dice;
-      document.getElementById('ludo-status').innerText = "আপনি পেয়েছেন: " + dice;
-    }
-
-    // Public Chat Logic
     function sendChatMessage() {
       const input = document.getElementById('chat-input');
-      const text = input.value.trim();
-      if(text !== "") {
-        db.ref('chats').push({ sender: userId, text: text });
+      if (input.value.trim() !== "") {
+        db.ref('chats').push({ sender: currentUserEmail.split('@')[0], text: input.value.trim() });
         input.value = '';
       }
     }
 
-    db.ref('chats').limitToLast(10).on('child_added', (snapshot) => {
-      const msg = snapshot.val();
-      const chatBox = document.getElementById('chat-messages');
+    db.ref('chats').limitToLast(10).on('child_added', (snap) => {
+      const msg = snap.val();
       const div = document.createElement('div');
-      div.style.marginBottom = "4px";
-      div.innerHTML = `<strong style="color:#ffb703;">${msg.sender}:</strong> ${msg.text}`;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      div.innerHTML = `<b style="color:#ffb703;">${msg.sender}:</b> ${msg.text}`;
+      document.getElementById('chat-messages').appendChild(div);
     });
   </script>
 </body>
-        </html>
+</html>
