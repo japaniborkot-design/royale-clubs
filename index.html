@@ -3,106 +3,262 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Royale Clubs - Teen Patti</title>
+<title>Teen Patti Royale Table</title>
 <style>
-  body { 
-    background: #0f172a; 
-    color: #fff; 
-    font-family: Arial, sans-serif; 
-    text-align: center; 
-    padding: 20px; 
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+  body { background: #0b131e; color: #fff; text-align: center; padding: 10px; }
+  
+  /* Casino Table */
+  .table {
+    background: radial-gradient(circle, #0e6231 0%, #053318 100%);
+    border: 12px solid #5c3a21;
+    border-radius: 150px;
+    max-width: 500px;
+    height: 520px;
+    margin: 10px auto;
+    position: relative;
+    box-shadow: inset 0 0 20px #000, 0 8px 20px rgba(0,0,0,0.8);
   }
-  h1 { color: #f59e0b; margin-bottom: 5px; }
-  .balance { font-size: 22px; color: #38bdf8; margin: 15px 0; font-weight: bold; }
-  .card-container { 
-    display: flex; 
-    justify-content: center; 
-    gap: 15px; 
-    margin: 25px 0; 
+
+  /* Pot Area */
+  .pot-area {
+    position: absolute; top: 42%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.6);
+    padding: 8px 16px; border-radius: 20px;
+    border: 1px solid #ffd700; color: #ffd700; font-weight: bold;
   }
-  .card { 
-    width: 80px; 
-    height: 120px; 
-    background: white; 
-    color: black; 
-    border-radius: 10px; 
-    font-size: 28px; 
-    font-weight: bold; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    border: 3px solid #f59e0b; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+
+  /* Players */
+  .player { position: absolute; text-align: center; width: 120px; }
+  .p-bot1 { top: 20px; left: 20px; }
+  .p-bot2 { top: 20px; right: 20px; }
+  .p-user { bottom: 15px; left: 50%; transform: translateX(-50%); }
+
+  .p-name { font-size: 13px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 2px 8px; border-radius: 10px; margin-bottom: 4px; }
+  .p-coins { font-size: 12px; color: #f59e0b; }
+
+  /* Cards */
+  .cards { display: flex; justify-content: center; gap: 4px; margin-top: 4px; }
+  .card {
+    width: 34px; height: 50px; background: #fff; color: #000;
+    border-radius: 4px; font-size: 12px; font-weight: bold;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid #999; box-shadow: 0 2px 4px rgba(0,0,0,0.4);
   }
+  .card.back { background: #b91c1c; color: #fff; border: 1px solid #fff; font-size: 16px; }
   .red { color: #dc2626; }
-  button { 
-    background: #22c55e; 
-    color: white; 
-    border: none; 
-    padding: 14px 28px; 
-    font-size: 20px; 
-    font-weight: bold; 
-    border-radius: 8px; 
-    cursor: pointer; 
+
+  /* Controls */
+  .controls {
+    margin-top: 15px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+  }
+  button {
+    background: #22c55e; color: #fff; border: none; padding: 10px 16px;
+    font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
   }
-  button:active { transform: scale(0.98); }
-  #result { font-size: 20px; min-height: 30px; margin-top: 15px; }
+  button.btn-pack { background: #ef4444; }
+  button.btn-show { background: #3b82f6; }
+  button:disabled { background: #4b5563; opacity: 0.6; cursor: not-allowed; }
+
+  #msg { margin-top: 10px; font-size: 15px; color: #ffd700; min-height: 22px; font-weight: bold; }
 </style>
 </head>
 <body>
 
-  <h1>🃏 Royale Clubs 🃏</h1>
-  <h3>Teen Patti Game</h3>
+  <h2 style="color: #ffd700; margin-top: 5px;">♣ Teen Patti Table ♣</h2>
   
-  <div class="balance">কয়েন: <span id="coins">1000</span> 🪙</div>
-  
-  <div class="card-container" id="cards">
-    <div class="card">🂠</div>
-    <div class="card">🂠</div>
-    <div class="card">🂠</div>
+  <div class="table">
+    <!-- Bot 1 -->
+    <div class="player p-bot1">
+      <div class="p-name">Rahim (Bot)</div>
+      <div class="p-coins">🪙 <span id="b1-coins">1000</span></div>
+      <div class="cards" id="b1-cards">
+        <div class="card back">🂠</div><div class="card back">🂠</div><div class="card back">🂠</div>
+      </div>
+    </div>
+
+    <!-- Bot 2 -->
+    <div class="player p-bot2">
+      <div class="p-name">Karim (Bot)</div>
+      <div class="p-coins">🪙 <span id="b2-coins">1000</span></div>
+      <div class="cards" id="b2-cards">
+        <div class="card back">🂠</div><div class="card back">🂠</div><div class="card back">🂠</div>
+      </div>
+    </div>
+
+    <!-- POT -->
+    <div class="pot-area">
+      পট: 🪙 <span id="pot">0</span>
+    </div>
+
+    <!-- Main User -->
+    <div class="player p-user">
+      <div class="cards" id="user-cards">
+        <div class="card back">🂠</div><div class="card back">🂠</div><div class="card back">🂠</div>
+      </div>
+      <div class="p-name" style="margin-top:4px;">আপনি (Player)</div>
+      <div class="p-coins">🪙 <span id="user-coins">1000</span></div>
+    </div>
   </div>
 
-  <h3 id="result">চাল দিতে 'Deal' চাপুন! (-100 Coins)</h3>
-  <br>
-  <button onclick="play()">Deal (চাল দিন)</button>
+  <div id="msg">নতুন খেলা শুরু করতে 'Deal' চাপুন!</div>
+
+  <!-- Action Buttons -->
+  <div class="controls">
+    <button id="btn-deal" onclick="startNewGame()">Deal (কার্ড बांटুন)</button>
+    <button id="btn-chaal" onclick="playChaal()" disabled>Chaal (-50)</button>
+    <button id="btn-pack" class="btn-pack" onclick="packGame()" disabled>Pack (ফোল্ড)</button>
+    <button id="btn-show" class="btn-show" onclick="showCards()" disabled>Show (কার্ড দেখুন)</button>
+  </div>
 
 <script>
-  let coins = 1000;
+  let userCoins = 1000, b1Coins = 1000, b2Coins = 1000;
+  let pot = 0, currentChaal = 50;
+  let userHand = [], b1Hand = [], b2Hand = [];
+  let userPacked = false, b1Packed = false, b2Packed = false;
+  let gameActive = false;
+
   const suits = ['♠', '♥', '♦', '♣'];
   const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+  const rankMap = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
 
-  function play() {
-    if (coins < 100) { 
-      alert('আপনার কয়েন শেষ হয়ে গেছে!'); 
-      return; 
-    }
-    coins -= 100;
+  function getDeck() {
+    let deck = [];
+    for(let s of suits) for(let v of values) deck.push({v, s});
+    return deck.sort(() => Math.random() - 0.5);
+  }
+
+  function startNewGame() {
+    if(userCoins < 50) { alert('কয়েন শেষ!'); return; }
     
-    let hand = [];
-    for(let i = 0; i < 3; i++) {
-      let s = suits[Math.floor(Math.random() * suits.length)];
-      let v = values[Math.floor(Math.random() * values.length)];
-      hand.push({v, s});
-    }
+    let deck = getDeck();
+    userHand = [deck.pop(), deck.pop(), deck.pop()];
+    b1Hand = [deck.pop(), deck.pop(), deck.pop()];
+    b2Hand = [deck.pop(), deck.pop(), deck.pop()];
 
-    let cardsHTML = '';
-    hand.forEach(c => {
+    userCoins -= 50; b1Coins -= 50; b2Coins -= 50;
+    pot = 150;
+    userPacked = false; b1Packed = false; b2Packed = false;
+    gameActive = true;
+
+    updateUI();
+    renderUserCards(true); // show user cards
+    renderBotCards('b1-cards', true);
+    renderBotCards('b2-cards', true);
+
+    document.getElementById('msg').innerText = "আপনার চাল! চাল দিন, প্যাক মারুন বা শো করুন।";
+    setButtons(false);
+  }
+
+  function renderUserCards(show) {
+    let html = '';
+    userHand.forEach(c => {
       let isRed = (c.s === '♥' || c.s === '♦') ? 'red' : '';
-      cardsHTML += `<div class="card ${isRed}">${c.v}${c.s}</div>`;
+      html += `<div class="card ${isRed}">${c.v}${c.s}</div>`;
     });
-    document.getElementById('cards').innerHTML = cardsHTML;
+    document.getElementById('user-cards').innerHTML = html;
+  }
 
-    // Win check (Trail or Pair)
-    let win = (hand[0].v === hand[1].v || hand[1].v === hand[2].v || hand[0].v === hand[2].v);
-    
-    if(win) {
-      coins += 300;
-      document.getElementById('result').innerHTML = "<span style='color: #4ade80;'>🎉 আপনি জিতেছেন! (+300 Coins)</span>";
-    } else {
-      document.getElementById('result').innerHTML = "<span style='color: #f87171;'>❌ আপনি হেরেছেন!</span>";
+  function renderBotCards(elemId, hidden) {
+    let html = '';
+    for(let i=0; i<3; i++) {
+      html += hidden ? `<div class="card back">🂠</div>` : `<div class="card">?</div>`;
     }
-    document.getElementById('coins').innerText = coins;
+    document.getElementById(elemId).innerHTML = html;
+  }
+
+  function showBotCardsRevealed() {
+    let b1Html = '', b2Html = '';
+    b1Hand.forEach(c => {
+      let isRed = (c.s === '♥' || c.s === '♦') ? 'red' : '';
+      b1Html += `<div class="card ${isRed}">${c.v}${c.s}</div>`;
+    });
+    b2Hand.forEach(c => {
+      let isRed = (c.s === '♥' || c.s === '♦') ? 'red' : '';
+      b2Html += `<div class="card ${isRed}">${c.v}${c.s}</div>`;
+    });
+    document.getElementById('b1-cards').innerHTML = b1Html;
+    document.getElementById('b2-cards').innerHTML = b2Html;
+  }
+
+  function playChaal() {
+    if(!gameActive || userPacked) return;
+    userCoins -= 50;
+    pot += 50;
+    
+    // Bots respond
+    if(!b1Packed) { b1Coins -= 50; pot += 50; }
+    if(!b2Packed) { b2Coins -= 50; pot += 50; }
+
+    updateUI();
+    document.getElementById('msg').innerText = "সবাই চাল দিয়েছে! পটে আরও কয়েন জমা হলো।";
+  }
+
+  function packGame() {
+    if(!gameActive) return;
+    userPacked = true;
+    renderUserCards(false);
+    document.getElementById('user-cards').innerHTML = `<div class="card back">PACK</div>`;
+    document.getElementById('msg').innerText = "আপনি প্যাক মেরেছেন! বটেরা খেলছে...";
+    setButtons(true);
+    setTimeout(showCards, 1500);
+  }
+
+  function getHandScore(hand) {
+    let v1 = rankMap[hand[0].v], v2 = rankMap[hand[1].v], v3 = rankMap[hand[2].v];
+    let vals = [v1, v2, v3].sort((a,b)=>a-b);
+    
+    // Trail (Trio)
+    if(vals[0] === vals[1] && vals[1] === vals[2]) return 500 + vals[0];
+    // Pair
+    if(vals[0] === vals[1] || vals[1] === vals[2]) return 200 + vals[1];
+    if(vals[0] === vals[2]) return 200 + vals[0];
+    // High Card
+    return vals[2];
+  }
+
+  function showCards() {
+    if(!gameActive) return;
+    gameActive = false;
+    showBotCardsRevealed();
+
+    let uScore = userPacked ? -1 : getHandScore(userHand);
+    let b1Score = b1Packed ? -1 : getHandScore(b1Hand);
+    let b2Score = b2Packed ? -1 : getHandScore(b2Hand);
+
+    let maxScore = Math.max(uScore, b1Score, b2Score);
+
+    if(maxScore === uScore) {
+      userCoins += pot;
+      document.getElementById('msg').innerHTML = "<span style='color:#4ade80;'>🎉 আপনি জিতেছেন! পটের "+pot+" কয়েন আপনার!</span>";
+    } else if(maxScore === b1Score) {
+      b1Coins += pot;
+      document.getElementById('msg').innerText = "❌ রহিম (Bot 1) জিতে গেছে!";
+    } else {
+      b2Coins += pot;
+      document.getElementById('msg').innerText = "❌ করিম (Bot 2) জিতে গেছে!";
+    }
+    
+    pot = 0;
+    updateUI();
+    setButtons(true);
+    document.getElementById('btn-deal').disabled = false;
+  }
+
+  function updateUI() {
+    document.getElementById('user-coins').innerText = userCoins;
+    document.getElementById('b1-coins').innerText = b1Coins;
+    document.getElementById('b2-coins').innerText = b2Coins;
+    document.getElementById('pot').innerText = pot;
+  }
+
+  function setButtons(disabled) {
+    document.getElementById('btn-chaal').disabled = disabled;
+    document.getElementById('btn-pack').disabled = disabled;
+    document.getElementById('btn-show').disabled = disabled;
+    document.getElementById('btn-deal').disabled = !disabled;
   }
 </script>
 </body>
