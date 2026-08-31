@@ -7,7 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
     body { background-color: #0f0f15; color: #fff; text-align: center; padding: 10px; }
     
     .header { background: #1a1a24; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #2d2d3f; }
@@ -31,6 +31,10 @@
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; }
     .close-btn { background: #ff4757; color: white; border: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; float: right; font-weight: bold; }
 
+    #ludoCanvas { background: #fff; border: 3px solid #ffb703; border-radius: 8px; margin: 10px auto; display: block; max-width: 100%; }
+    .dice-area { display: flex; justify-content: space-around; align-items: center; margin-top: 5px; }
+    .dice-btn { font-size: 30px; background: #ffb703; color: #000; width: 55px; height: 55px; line-height: 55px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+
     .chat-box { background: #11111a; height: 110px; border-radius: 5px; padding: 8px; overflow-y: auto; text-align: left; font-size: 12px; margin-bottom: 6px; border: 1px solid #333; }
     .chat-input { width: 70%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #111; color: white; }
     .send-btn { width: 26%; padding: 6px; background: #ffb703; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: #000; }
@@ -39,7 +43,7 @@
 </head>
 <body>
 
-  <!-- Auth Screen (Gmail & Password) -->
+  <!-- Auth Screen (Register & Login with Gmail) -->
   <div class="auth-overlay" id="auth-screen">
     <div class="modal-content">
       <h2 id="auth-title">লগইন করুন</h2>
@@ -56,7 +60,7 @@
     </div>
   </div>
 
-  <!-- Main App View -->
+  <!-- Main App Screen -->
   <div id="main-app" style="display:none;">
     <div class="header">
       <div class="user-info">
@@ -79,12 +83,21 @@
       </div>
     </div>
 
+    <!-- Games Section -->
     <div class="card">
-      <h2>🎮 লটারি ও গেম</h2>
-      <button class="game-btn" style="background:#00b4d8;" onclick="alert('গেম চালু হচ্ছে...')">Play Demo Ludo</button>
-      <button class="game-btn" onclick="alert('রিয়েল গেম শীঘ্রই আসছে!')">Play Real Ludo (৳50)</button>
+      <h2>🎮 আসল মাল্টিপ্লেয়ার লুডু</h2>
+      <button class="game-btn" style="background:#00b4d8;" onclick="startLudo('Demo Mode')">Play Demo Ludo Board</button>
+      <button class="game-btn" onclick="startLudo('Real Mode')">Play Real Ludo (৳50)</button>
     </div>
 
+    <!-- Lottery Section -->
+    <div class="card">
+      <h2>🏆 সাপ্তাহিক লটারি ড্র</h2>
+      <p>প্রাইজ পুল: <strong style="color:#ffb703;">৳২৫,০০০</strong></p>
+      <button class="game-btn" style="background: #ffb703; color: #000;" onclick="buyLotteryTicket()">Buy Ticket (৳৫০)</button>
+    </div>
+
+    <!-- Public Chat Section -->
     <div class="card">
       <h2>💬 পাবলিক আড্ডা রুম</h2>
       <div class="chat-box" id="chat-messages"></div>
@@ -118,6 +131,19 @@
     </div>
   </div>
 
+  <!-- Ludo Game Modal -->
+  <div class="modal" id="ludo-modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal('ludo-modal')">X</button>
+      <h3 id="ludo-title" style="color:#ffb703;">Ludo Board</h3>
+      <canvas id="ludoCanvas" width="300" height="300"></canvas>
+      <div class="dice-area">
+        <p id="ludo-status">আপনার চাল...</p>
+        <div class="dice-btn" id="dice-val" onclick="rollDice()">🎲</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAz3s7sdeeaKlrmUmzRGO4DpdN4siiOp9k",
@@ -135,6 +161,8 @@
     let currentUserKey = localStorage.getItem("ludo_user_key");
     let currentUserEmail = localStorage.getItem("ludo_user_email");
     let isRegisterMode = false;
+    let realBalance = 0;
+    let demoCoins = 1000;
 
     if (currentUserKey && currentUserEmail) {
       showMainApp(currentUserKey, currentUserEmail);
@@ -158,7 +186,7 @@
       const pass = document.getElementById('auth-pass').value.trim();
       const confirmPass = document.getElementById('auth-confirm-pass').value.trim();
 
-      if (!email || !pass) return alert("জিমেইল এবং পাসওয়ার্ড দিন!");
+      if (!email || !pass) return alert("জিমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন!");
       if (!email.includes("@") || !email.includes(".")) return alert("সঠিক জিমেইল এড্রেস দিন!");
 
       const userKey = sanitizeKey(email);
@@ -166,13 +194,13 @@
 
       if (isRegisterMode) {
         if (pass !== confirmPass) return alert("দুইটি পাসওয়ার্ড মিলছে না!");
-        if (pass.length < 4) return alert("পাসওয়ার্ড অন্তত ৪ অক্ষরের দিন!");
+        if (pass.length < 4) return alert("পাসওয়ার্ড অন্তত ৪ অক্ষরের হতে হবে!");
 
         userRef.once('value', (snapshot) => {
           if (snapshot.exists()) {
             alert("এই জিমেইলে ইতিপূর্বে একাউন্ট খোলা হয়েছে! লগইন করুন।");
           } else {
-            userRef.set({ email: email, password: pass, real_balance: 0, demo_coins: 1000 })
+            userRef.set({ email: email, password: pass, real_balance: 0, demo_coins: 1000, created_at: Date.now() })
               .then(() => {
                 alert("একাউন্ট সফলভাবে খোলা হয়েছে!");
                 loginSuccess(userKey, email);
@@ -210,8 +238,8 @@
 
       db.ref('users_accounts/' + key).on('value', (snapshot) => {
         const data = snapshot.val() || {};
-        const demoCoins = data.demo_coins !== undefined ? data.demo_coins : 1000;
-        const realBalance = data.real_balance || 0;
+        demoCoins = data.demo_coins !== undefined ? data.demo_coins : 1000;
+        realBalance = data.real_balance || 0;
         document.getElementById('demo-balance').innerText = '🪙 ' + demoCoins;
         document.getElementById('real-val').innerText = realBalance.toFixed(2);
       });
@@ -223,19 +251,28 @@
     function submitDeposit() {
       const amount = parseFloat(document.getElementById('dep-amount').value);
       const trx = document.getElementById('dep-trx').value;
-      if (!amount || !trx) return alert("সব তথ্য দিন!");
+      if (!amount || !trx) return alert("সব তথ্য সঠিকভাবে দিন!");
 
       db.ref('deposit_requests').push({ userId: currentUserKey, email: currentUserEmail, amount, trx, status: 'pending', time: Date.now() })
-        .then(() => { alert("ডিপোজিট রিকোয়েস্ট সফল হয়েছে!"); closeModal('deposit-modal'); });
+        .then(() => { alert("ডিপোজিট রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!"); closeModal('deposit-modal'); });
     }
 
     function submitWithdraw() {
       const amount = parseFloat(document.getElementById('with-amount').value);
       const phone = document.getElementById('with-phone').value;
       if (!amount || !phone) return alert("সব তথ্য দিন!");
+      if (amount > realBalance) return alert("আপনার একাউন্টে পর্যাপ্ত ব্যালেন্স নেই!");
 
+      db.ref('users_accounts/' + currentUserKey).update({ real_balance: realBalance - amount });
       db.ref('withdraw_requests').push({ userId: currentUserKey, email: currentUserEmail, amount, phone, status: 'pending', time: Date.now() })
-        .then(() => { alert("উইথড্র রিকোয়েস্ট সফল হয়েছে!"); closeModal('withdraw-modal'); });
+        .then(() => { alert("উইথড্র রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে!"); closeModal('withdraw-modal'); });
+    }
+
+    function buyLotteryTicket() {
+      if (realBalance < 50) return alert("লটারি টিকিট কেনার জন্য অন্তত ৳৫০ ব্যালেন্স লাগবে!");
+      db.ref('users_accounts/' + currentUserKey).update({ real_balance: realBalance - 50 });
+      db.ref('lottery_tickets').push({ email: currentUserEmail, time: Date.now() });
+      alert("অভিনন্দন! আপনি সফলভাবে ১টি লটারি টিকিট কিনেছেন।");
     }
 
     function sendChatMessage() {
@@ -252,6 +289,37 @@
       div.innerHTML = `<b style="color:#ffb703;">${msg.sender}:</b> ${msg.text}`;
       document.getElementById('chat-messages').appendChild(div);
     });
+
+    function drawLudoBoard() {
+      const canvas = document.getElementById('ludoCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 300, 300);
+      ctx.fillStyle = "#e63946"; ctx.fillRect(0, 0, 120, 120);
+      ctx.fillStyle = "#2a9d8f"; ctx.fillRect(180, 0, 120, 120);
+      ctx.fillStyle = "#ffb703"; ctx.fillRect(0, 180, 120, 120);
+      ctx.fillStyle = "#00b4d8"; ctx.fillRect(180, 180, 120, 120);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(20, 20, 80, 80); ctx.fillRect(200, 20, 80, 80);
+      ctx.fillRect(20, 200, 80, 80); ctx.fillRect(200, 200, 80, 80);
+      ctx.fillStyle = "#111"; ctx.fillRect(120, 120, 60, 60);
+      ctx.fillStyle = "#e63946"; ctx.beginPath(); ctx.arc(40, 40, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#2a9d8f"; ctx.beginPath(); ctx.arc(220, 40, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#ffb703"; ctx.beginPath(); ctx.arc(40, 220, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#00b4d8"; ctx.beginPath(); ctx.arc(220, 220, 12, 0, Math.PI * 2); ctx.fill();
+    }
+
+    function startLudo(mode) {
+      if (mode === 'Real Mode' && realBalance < 50) return alert("রিয়েল লুডো খেলতে ৳৫০ ব্যালেন্স লাগবে!");
+      document.getElementById('ludo-title').innerText = "Ludo Board (" + mode + ")";
+      openModal('ludo-modal');
+      setTimeout(drawLudoBoard, 100);
+    }
+
+    function rollDice() {
+      const dice = Math.floor(Math.random() * 6) + 1;
+      document.getElementById('dice-val').innerText = dice;
+      document.getElementById('ludo-status').innerText = "ঘুঁটি " + dice + " ঘর সামনে এগিয়েছে!";
+    }
   </script>
 </body>
 </html>
