@@ -39,9 +39,18 @@
     .chat-input { width: 70%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #111; color: white; }
     .send-btn { width: 26%; padding: 6px; background: #ffb703; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: #000; }
     .logout-btn { background: #555; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-left: 5px; }
+
+    /* Admin Panel Styles */
+    .admin-float-btn { position: fixed; bottom: 10px; right: 10px; background: #ffb703; color: #000; border: none; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer; z-index: 900; }
+    .admin-card { background: #222230; border-radius: 8px; padding: 10px; margin-bottom: 10px; text-align: left; font-size: 13px; border-left: 4px solid #ffb703; }
+    .admin-btn-approve { background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+    .admin-btn-reject { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
+
+  <!-- Secret Admin Button -->
+  <button class="admin-float-btn" onclick="openAdminModal()">🔒 Admin Login</button>
 
   <!-- Auth Screen (Register & Login with Gmail) -->
   <div class="auth-overlay" id="auth-screen">
@@ -144,6 +153,27 @@
     </div>
   </div>
 
+  <!-- Admin Modal -->
+  <div class="modal" id="admin-modal">
+    <div class="modal-content" style="max-width: 450px; text-align: left;">
+      <button class="close-btn" onclick="closeModal('admin-modal')">X</button>
+      <h3 style="color:#ffb703; text-align: center; margin-bottom: 10px;">👑 Admin Dashboard</h3>
+      
+      <div id="admin-pass-container">
+        <input type="password" id="admin-pass-input" placeholder="এডমিন পাসওয়ার্ড দিন">
+        <button class="game-btn" style="background:#28a745;" onclick="checkAdminPass()">প্রবেশ করুন</button>
+      </div>
+
+      <div id="admin-content" style="display:none; max-height: 400px; overflow-y: auto;">
+        <h4 style="color:#ffb703; margin: 10px 0 5px 0;">💳 ডিপোজিট রিকোয়েস্ট</h4>
+        <div id="admin-deposit-list">কোোনো রিকোয়েস্ট নেই</div>
+
+        <h4 style="color:#ffb703; margin: 15px 0 5px 0;">🏧 উইথড্র রিকোয়েস্ট</h4>
+        <div id="admin-withdraw-list">কোোনো রিকোয়েস্ট নেই</div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAz3s7sdeeaKlrmUmzRGO4DpdN4siiOp9k",
@@ -163,6 +193,7 @@
     let isRegisterMode = false;
     let realBalance = 0;
     let demoCoins = 1000;
+    const ADMIN_PASSWORD = "445335"; // আপডেট করা এডমিন পাসওয়ার্ড
 
     if (currentUserKey && currentUserEmail) {
       showMainApp(currentUserKey, currentUserEmail);
@@ -278,7 +309,7 @@
     function sendChatMessage() {
       const input = document.getElementById('chat-input');
       if (input.value.trim() !== "") {
-        db.ref('chats').push({ sender: currentUserEmail.split('@')[0], text: input.value.trim() });
+        db.ref('chats').push({ sender: currentUserEmail ? currentUserEmail.split('@')[0] : 'Guest', text: input.value.trim() });
         input.value = '';
       }
     }
@@ -319,6 +350,104 @@
       const dice = Math.floor(Math.random() * 6) + 1;
       document.getElementById('dice-val').innerText = dice;
       document.getElementById('ludo-status').innerText = "ঘুঁটি " + dice + " ঘর সামনে এগিয়েছে!";
+    }
+
+    /* ----------- ADMIN PANEL LOGIC ----------- */
+    function openAdminModal() {
+      openModal('admin-modal');
+    }
+
+    function checkAdminPass() {
+      const pass = document.getElementById('admin-pass-input').value;
+      if (pass === ADMIN_PASSWORD) {
+        document.getElementById('admin-pass-container').style.display = 'none';
+        document.getElementById('admin-content').style.display = 'block';
+        loadAdminRequests();
+      } else {
+        alert("ভুল এডমিন পাসওয়ার্ড!");
+      }
+    }
+
+    function loadAdminRequests() {
+      db.ref('deposit_requests').on('value', (snapshot) => {
+        const listContainer = document.getElementById('admin-deposit-list');
+        listContainer.innerHTML = '';
+        let hasData = false;
+        
+        snapshot.forEach((child) => {
+          const req = child.val();
+          const reqId = child.key;
+          if (req.status === 'pending') {
+            hasData = true;
+            listContainer.innerHTML += `
+              <div class="admin-card">
+                <b>User:</b> ${req.email}<br>
+                <b>Amount:</b> ৳${req.amount}<br>
+                <b>TrxID:</b> ${req.trx}<br>
+                <div style="margin-top: 6px;">
+                  <button class="admin-btn-approve" onclick="approveDeposit('${reqId}', '${req.userId}', ${req.amount})">Approve</button>
+                  <button class="admin-btn-reject" onclick="rejectRequest('deposit_requests', '${reqId}')">Reject</button>
+                </div>
+              </div>`;
+          }
+        });
+        if (!hasData) listContainer.innerHTML = '<small style="color:#aaa;">কোনো পেন্ডিং ডিপোজিট নেই</small>';
+      });
+
+      db.ref('withdraw_requests').on('value', (snapshot) => {
+        const listContainer = document.getElementById('admin-withdraw-list');
+        listContainer.innerHTML = '';
+        let hasData = false;
+
+        snapshot.forEach((child) => {
+          const req = child.val();
+          const reqId = child.key;
+          if (req.status === 'pending') {
+            hasData = true;
+            listContainer.innerHTML += `
+              <div class="admin-card" style="border-left-color: #e63946;">
+                <b>User:</b> ${req.email}<br>
+                <b>Amount:</b> ৳${req.amount}<br>
+                <b>Phone:</b> ${req.phone}<br>
+                <div style="margin-top: 6px;">
+                  <button class="admin-btn-approve" onclick="approveWithdraw('${reqId}')">Completed</button>
+                  <button class="admin-btn-reject" onclick="rejectWithdraw('${reqId}', '${req.userId}', ${req.amount})">Reject & Refund</button>
+                </div>
+              </div>`;
+          }
+        });
+        if (!hasData) listContainer.innerHTML = '<small style="color:#aaa;">কোনো পেন্ডিং উইথড্র নেই</small>';
+      });
+    }
+
+    function approveDeposit(reqId, userId, amount) {
+      db.ref('users_accounts/' + userId + '/real_balance').transaction((currentBalance) => {
+        return (currentBalance || 0) + amount;
+      }).then(() => {
+        db.ref('deposit_requests/' + reqId).remove();
+        alert("ডিপোজিট সফলভাবে অ্যাপ্রুভ করা হয়েছে এবং ব্যালেন্স যোগ করা হয়েছে!");
+      });
+    }
+
+    function rejectRequest(path, reqId) {
+      db.ref(path + '/' + reqId).remove().then(() => {
+        alert("রিকোয়েস্টটি বাতিল (Reject) করা হয়েছে!");
+      });
+    }
+
+    function approveWithdraw(reqId) {
+      db.ref('withdraw_requests/' + reqId).remove().then(() => {
+        alert("উইথড্র রিকোয়েস্ট সফলভাবে কমপ্লিট করা হয়েছে!");
+      });
+    }
+
+    function rejectWithdraw(reqId, userId, amount) {
+      db.ref('users_accounts/' + userId + '/real_balance').transaction((currentBalance) => {
+        return (currentBalance || 0) + amount;
+      }).then(() => {
+        db.ref('withdraw_requests/' + reqId).remove();
+        alert("উইথড্র বাতিল করা হয়েছে এবং ইউজারের ব্যালেন্স রিফান্ড করা হয়েছে!");
+      });
     }
   </script>
 </body>
