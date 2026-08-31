@@ -37,10 +37,10 @@
     .game-btn { background: #e63946; color: white; border: none; padding: 10px; font-size: 14px; border-radius: 6px; cursor: pointer; margin: 4px 0; width: 100%; font-weight: bold; }
 
     .auth-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f15; justify-content: center; align-items: center; z-index: 999; }
-    .modal-content { background: #1a1a24; padding: 20px; border-radius: 12px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #ffb703; }
+    .modal-content { background: #1a1a24; padding: 20px; border-radius: 12px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #ffb703; max-height: 85vh; overflow-y: auto; }
     .modal-content input, .modal-content select { width: 100%; padding: 10px; margin: 6px 0; border-radius: 5px; border: 1px solid #444; background: #111; color: white; font-size: 14px; outline: none; }
     
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 100000; }
     .close-btn { background: #ff4757; color: white; border: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; float: right; font-weight: bold; }
 
     .method-selector { display: flex; justify-content: space-around; margin: 10px 0; background: #252538; padding: 8px; border-radius: 6px; }
@@ -64,6 +64,8 @@
 
     .waiting-spinner { border: 4px solid #333; border-top: 4px solid #ffb703; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 15px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .data-list-item { background: #252538; padding: 10px; margin-bottom: 8px; border-radius: 6px; text-align: left; font-size: 12px; border-left: 3px solid #ffb703; }
   </style>
 </head>
 <body>
@@ -162,6 +164,30 @@
       <div style="display:flex; justify-content:space-between;">
         <input type="text" id="chat-input" class="chat-input" placeholder="মেসেজ লিখুন...">
         <button class="send-btn" onclick="sendChatMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Verification Modal -->
+  <div class="modal" id="admin-pass-modal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal('admin-pass-modal')">X</button>
+      <h3 style="color:#ffb703; margin-bottom: 10px;">🔒 এডমিন লগইন</h3>
+      <p style="font-size:12px; color:#aaa; margin-bottom:8px;">এডমিন পাসওয়ার্ড প্রবেশ করান</p>
+      <input type="password" id="admin-input-pass" placeholder="এডমিন পাসওয়ার্ড দিন">
+      <button class="game-btn" style="background:#28a745; margin-top:10px;" onclick="verifyAdminPass()">প্রবেশ করুন</button>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard Modal -->
+  <div class="modal" id="admin-dashboard-modal">
+    <div class="modal-content" style="max-width: 450px;">
+      <button class="close-btn" onclick="closeModal('admin-dashboard-modal')">X</button>
+      <h3 style="color:#ffb703; margin-bottom: 15px;">👑 এডমিন কন্ট্রোল প্যানেল</h3>
+
+      <div style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px;">
+        <h4 style="color:#28a745; text-align:left; margin-bottom:5px;">📥 এজেন্সির আবেদনের তালিকা:</h4>
+        <div id="admin-agency-list">কোনো আবেদন পাওয়া যায়নি।</div>
       </div>
     </div>
   </div>
@@ -341,6 +367,47 @@
       const overlay = document.getElementById('drawer-overlay');
       drawer.classList.toggle('open');
       overlay.style.display = drawer.classList.contains('open') ? 'block' : 'none';
+    }
+
+    /* Admin Functions */
+    function openAdminModal() {
+      document.getElementById('admin-input-pass').value = '';
+      openModal('admin-pass-modal');
+    }
+
+    function verifyAdminPass() {
+      const pass = document.getElementById('admin-input-pass').value.trim();
+      if (pass === ADMIN_PASSWORD) {
+        closeModal('admin-pass-modal');
+        openModal('admin-dashboard-modal');
+        loadAgencyRequests();
+      } else {
+        alert("ভুল এডমিন পাসওয়ার্ড!");
+      }
+    }
+
+    function loadAgencyRequests() {
+      const listContainer = document.getElementById('admin-agency-list');
+      db.ref('agency_requests').on('value', (snapshot) => {
+        listContainer.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+          Object.keys(data).forEach(key => {
+            const req = data[key];
+            const div = document.createElement('div');
+            div.className = 'data-list-item';
+            div.innerHTML = `
+              <b>নাম:</b> ${req.name}<br>
+              <b>WhatsApp:</b> ${req.whatsapp}<br>
+              <b>জিমেইল:</b> ${req.userEmail || 'N/A'}<br>
+              <a href="https://wa.me/${req.whatsapp}" target="_blank" style="color:#28a745; font-weight:bold;">📲 হোয়াটসঅ্যাপে কথা বলুন</a>
+            `;
+            listContainer.appendChild(div);
+          });
+        } else {
+          listContainer.innerHTML = 'কোনো এজেন্সীর আবেদন খালি নাই।';
+        }
+      });
     }
 
     function toggleAuthMode() {
