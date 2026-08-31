@@ -1,0 +1,121 @@
+cat << 'EOF' > index.html
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royale Clubs Game</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: #fff; text-align: center; margin: 0; padding: 20px; }
+        .card { background: #1e293b; padding: 25px; border-radius: 15px; max-width: 400px; margin: 20px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        input, button { padding: 12px 20px; margin: 8px; border-radius: 8px; border: none; font-size: 16px; }
+        input { width: 70%; background: #334155; color: #fff; text-align: center; }
+        button { background: #3b82f6; color: white; cursor: pointer; font-weight: bold; }
+        .btn-play { background: #10b981; width: 80%; font-size: 18px; }
+        .leaderboard { text-align: left; background: #334155; padding: 10px 20px; border-radius: 10px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <h1>🃏 Royale Clubs Game 🃏</h1>
+
+    <div id="loginBox" class="card">
+        <h3>গেম শুরু করতে আপনার নাম দিন</h3>
+        <input type="text" id="usernameInput" placeholder="আপনার নাম লিখুন..." value="Player_01">
+        <br>
+        <button onclick="login()">Enter Game</button>
+    </div>
+
+    <div id="gameBox" class="card" style="display:none;">
+        <h2 id="welcomeText">Welcome!</h2>
+        <h3>Coins: <span id="userCoins" style="color: #f59e0b;">0</span></h3>
+        <hr style="border-color: #475569;">
+        <h4>Card Draw Game</h4>
+        <p>কার্ড তুলুন! জিতলে +১০০ কয়েন, হারলে -৫০ কয়েন!</p>
+        <button class="btn-play" onclick="drawCard()">Draw Card 🎴</button>
+        <p id="gameResult" style="font-weight: bold; font-size: 18px; height: 25px;"></p>
+
+        <div class="leaderboard">
+            <h4>🏆 Top Players:</h4>
+            <div id="leaderboardList">Loading leaderboard...</div>
+        </div>
+    </div>
+
+<script>
+    const BASE_URL = "https://royale-clubs-default-rtdb.firebaseio.com";
+    let currentUser = "";
+    let currentCoins = 0;
+
+    function login() {
+        let inputName = document.getElementById("usernameInput").value.trim();
+        if(!inputName) return alert("দয়া করে একটি নাম দিন!");
+        
+        currentUser = inputName.toLowerCase().replace(/\s+/g, '_');
+        
+        fetch(`${BASE_URL}/players/${currentUser}.json`)
+        .then(res => res.json())
+        .then(data => {
+            if(data && data.coins !== undefined) {
+                currentCoins = data.coins;
+            } else {
+                currentCoins = 500;
+                updateFirebase(currentUser, inputName, currentCoins);
+            }
+            document.getElementById("welcomeText").innerText = "Player: " + inputName;
+            document.getElementById("userCoins").innerText = currentCoins;
+            document.getElementById("loginBox").style.display = "none";
+            document.getElementById("gameBox").style.display = "block";
+            loadLeaderboard();
+        })
+        .catch(err => alert("ডাটাবেস কানেকশন সমস্যা!"));
+    }
+
+    function drawCard() {
+        if(currentCoins < 50) return alert("আপনার খেলার মতো পর্যাপ্ত কয়েন নেই!");
+
+        let isWin = Math.random() > 0.4;
+        let resultText = document.getElementById("gameResult");
+
+        if(isWin) {
+            currentCoins += 100;
+            resultText.style.color = "#10b981";
+            resultText.innerText = "🎉 আপনি জিতেছেন! (+100 Coins)";
+        } else {
+            currentCoins -= 50;
+            resultText.style.color = "#ef4444";
+            resultText.innerText = "💔 আপনি হেরেছেন! (-50 Coins)";
+        }
+
+        document.getElementById("userCoins").innerText = currentCoins;
+        let name = document.getElementById("usernameInput").value;
+        updateFirebase(currentUser, name, currentCoins);
+        loadLeaderboard();
+    }
+
+    function updateFirebase(id, name, coins) {
+        fetch(`${BASE_URL}/players/${id}.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, coins: coins })
+        });
+    }
+
+    function loadLeaderboard() {
+        fetch(`${BASE_URL}/players.json`)
+        .then(res => res.json())
+        .then(players => {
+            let listHtml = "";
+            if(players) {
+                let sorted = Object.values(players).sort((a,b) => b.coins - a.coins);
+                sorted.slice(0, 5).forEach((p, index) => {
+                    listHtml += `<p style="margin: 5px 0;">${index+1}. <strong>${p.name}</strong> - ${p.coins} coins</p>`;
+                });
+            }
+            document.getElementById("leaderboardList").innerHTML = listHtml;
+        });
+    }
+</script>
+
+</body>
+</html>
+EOF
