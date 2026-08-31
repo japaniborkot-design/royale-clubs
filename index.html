@@ -8,7 +8,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { background-color: #0f0f15; color: #fff; text-align: center; padding: 10px; }
+    body { background-color: #0f0f15; color: #fff; text-align: center; padding: 10px; overflow-x: hidden; }
     
     .top-bar { display: flex; justify-content: space-between; align-items: center; background: #1a1a24; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #2d2d3f; }
     .brand-title { font-size: 16px; font-weight: bold; color: #ffb703; }
@@ -40,37 +40,37 @@
     .modal-content { background: #1a1a24; padding: 20px; border-radius: 12px; width: 90%; max-width: 380px; text-align: center; border: 1px solid #ffb703; max-height: 85vh; overflow-y: auto; }
     .modal-content input, .modal-content select { width: 100%; padding: 10px; margin: 6px 0; border-radius: 5px; border: 1px solid #444; background: #111; color: white; font-size: 14px; outline: none; }
     
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 100000; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 100000; overflow: hidden; }
     .close-btn { background: #ff4757; color: white; border: none; padding: 4px 10px; border-radius: 5px; cursor: pointer; float: right; font-weight: bold; }
 
     .method-selector { display: flex; justify-content: space-around; margin: 10px 0; background: #252538; padding: 8px; border-radius: 6px; }
     .method-selector label { font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-    /* Avatar Grid Choice */
-    .avatar-grid { display: flex; justify-content: space-around; margin: 10px 0; }
-    .avatar-option { width: 45px; height: 45px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
-    .avatar-option.selected { border-color: #ffb703; transform: scale(1.1); }
-
-    /* Ludo Board Interface */
-    .ludo-board-wrapper { position: relative; width: 300px; height: 300px; margin: 10px auto; }
-    #ludoCanvas { background: #fff; border: 3px solid #ffb703; border-radius: 8px; }
+    /* Ludo Board Layout Fix - Prevents screen shaking */
+    .ludo-board-wrapper { position: relative; width: 280px; height: 280px; margin: 10px auto; overflow: hidden; }
+    #ludoCanvas { background: #fff; border: 3px solid #ffb703; border-radius: 8px; width: 100%; height: 100%; display: block; }
     
     .dice-area { display: flex; justify-content: space-around; align-items: center; margin-top: 10px; }
-    .dice-btn { font-size: 20px; background: #ffb703; color: #000; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; }
+    .dice-btn { font-size: 18px; background: #ffb703; color: #000; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; }
 
-    .chat-box { background: #11111a; height: 110px; border-radius: 5px; padding: 8px; overflow-y: auto; text-align: left; font-size: 12px; margin-bottom: 6px; border: 1px solid #333; }
+    .chat-box { background: #11111a; height: 100px; border-radius: 5px; padding: 8px; overflow-y: auto; text-align: left; font-size: 12px; margin-bottom: 6px; border: 1px solid #333; }
     .chat-input { width: 70%; padding: 6px; border-radius: 4px; border: 1px solid #444; background: #111; color: white; }
     .send-btn { width: 26%; padding: 6px; background: #ffb703; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: #000; }
 
-    .waiting-spinner { border: 4px solid #333; border-top: 4px solid #ffb703; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 15px auto; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .ticket-badge { background: #252538; border: 1px dashed #ffb703; padding: 6px; margin: 4px; border-radius: 5px; font-size: 12px; display: inline-block; color: #ffb703; font-weight: bold; }
     
-    .data-list-item { background: #252538; padding: 10px; margin-bottom: 8px; border-radius: 6px; text-align: left; font-size: 12px; border-left: 3px solid #ffb703; }
+    .req-card { background: #252538; padding: 10px; margin-bottom: 8px; border-radius: 6px; text-align: left; font-size: 12px; border-left: 3px solid #ffb703; }
+    .req-btn-group { display: flex; gap: 6px; margin-top: 8px; }
+    .btn-acc { background: #28a745; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 50%; }
+    .btn-rej { background: #dc3545; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 50%; }
+    
+    .admin-tab-btn { background: #252538; color: white; border: 1px solid #444; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .admin-tab-btn.active { background: #ffb703; color: black; }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation Bar -->
+  <!-- Top Bar -->
   <div class="top-bar">
     <div class="brand-title">🎲 Ludo Lottery BD</div>
     <button class="menu-toggle-btn" onclick="toggleMenu()">☰</button>
@@ -78,7 +78,7 @@
 
   <div class="drawer-overlay" id="drawer-overlay" onclick="toggleMenu()"></div>
 
-  <!-- Side Navigation Drawer -->
+  <!-- Side Navigation -->
   <div class="nav-drawer" id="nav-drawer">
     <div>
       <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:10px; border-bottom:1px solid #333;">
@@ -86,8 +86,6 @@
         <button class="close-btn" onclick="toggleMenu()">X</button>
       </div>
       <div class="menu-list">
-        <div class="menu-item" onclick="toggleMenu(); openProfileModal();">✏️ এডিট প্রোফাইল (Edit Profile)</div>
-        <div class="menu-item" onclick="toggleMenu(); openModal('agency-modal');">🏢 এজেন্সি (Agency)</div>
         <div class="menu-item" onclick="toggleMenu(); openAdminModal();">🔒 এডমিন লগইন (Admin)</div>
         <div class="menu-item" onclick="logout()" style="color:#ff4757;">🚪 লগআউট (Logout)</div>
       </div>
@@ -117,14 +115,13 @@
     </div>
   </div>
 
-  <!-- Main Application Screen -->
+  <!-- Main App Screen -->
   <div id="main-app" style="display:none;">
     <div class="header">
       <div class="user-info">
         <img id="user-display-photo" class="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Player1" alt="Avatar">
         <div>
           <span id="user-display-name" style="font-weight:bold; font-size: 15px;">---</span>
-          <div style="font-size:10px; color:#aaa;">(Public Gamer Identity)</div>
         </div>
       </div>
       <div class="wallet-container">
@@ -145,21 +142,25 @@
 
     <!-- Games Section -->
     <div class="card">
-      <h2>🎮 রিয়েল-টাইম মাল্টিপ্লেয়ার লুডু</h2>
+      <h2>🎮 লুডু গেম</h2>
       <button class="game-btn" style="background:#00b4d8;" onclick="startLudo('Demo Mode')">Play Demo Ludo Board</button>
-      <button class="game-btn" style="background:#28a745;" onclick="openModal('match-setup-modal')">⚔️ Play Real Match Setup</button>
     </div>
 
     <!-- Lottery Section -->
     <div class="card">
       <h2>🏆 সাপ্তাহিক লটারি ড্র</h2>
-      <p>প্রাইজ পুল: <strong style="color:#ffb703;">৳২৫,০০০</strong></p>
-      <button class="game-btn" style="background: #ffb703; color: #000;" onclick="buyLotteryTicket()">Buy Ticket (৳৫০)</button>
+      <p>প্রাইজ পুল: <strong style="color:#ffb703;">৳২৫,০০০</strong> | টিকিট মূল্য: ৳৫০</p>
+      <button class="game-btn" style="background: #ffb703; color: #000; margin-top: 8px;" onclick="buyLotteryTicket()">টিকিট কিনুন (৳৫০)</button>
+      
+      <div style="margin-top:10px;">
+        <h4 style="font-size:12px; color:#aaa;">আপনার লটারি কোডসমূহ:</h4>
+        <div id="my-tickets-container">কোনো টিকিট কেনা হয়নি।</div>
+      </div>
     </div>
 
-    <!-- Public Chat Section -->
+    <!-- Chat Section -->
     <div class="card">
-      <h2>💬 পাবলিক আড্ডা রুম</h2>
+      <h2>💬 পাবলিক চ্যাট রুম</h2>
       <div class="chat-box" id="chat-messages"></div>
       <div style="display:flex; justify-content:space-between;">
         <input type="text" id="chat-input" class="chat-input" placeholder="মেসেজ লিখুন...">
@@ -172,8 +173,7 @@
   <div class="modal" id="admin-pass-modal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal('admin-pass-modal')">X</button>
-      <h3 style="color:#ffb703; margin-bottom: 10px;">🔒 এডমিন লগইন</h3>
-      <p style="font-size:12px; color:#aaa; margin-bottom:8px;">এডমিন পাসওয়ার্ড প্রবেশ করান</p>
+      <h3 style="color:#ffb703; margin-bottom: 10px;">🔒 এডমিন প্যানেল</h3>
       <input type="password" id="admin-input-pass" placeholder="এডমিন পাসওয়ার্ড দিন">
       <button class="game-btn" style="background:#28a745; margin-top:10px;" onclick="verifyAdminPass()">প্রবেশ করুন</button>
     </div>
@@ -183,101 +183,15 @@
   <div class="modal" id="admin-dashboard-modal">
     <div class="modal-content" style="max-width: 450px;">
       <button class="close-btn" onclick="closeModal('admin-dashboard-modal')">X</button>
-      <h3 style="color:#ffb703; margin-bottom: 15px;">👑 এডমিন কন্ট্রোল প্যানেল</h3>
+      <h3 style="color:#ffb703; margin-bottom: 10px;">👑 এডমিন ড্যাশবোর্ড</h3>
 
-      <div style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px;">
-        <h4 style="color:#28a745; text-align:left; margin-bottom:5px;">📥 এজেন্সির আবেদনের তালিকা:</h4>
-        <div id="admin-agency-list">কোনো আবেদন পাওয়া যায়নি।</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Agency Partnership Modal -->
-  <div class="modal" id="agency-modal">
-    <div class="modal-content" style="text-align:left;">
-      <button class="close-btn" onclick="closeModal('agency-modal')">X</button>
-      <h3 style="color:#ffb703; text-align:center; margin-bottom:10px;">🏢 এজেন্সী পার্টনারশিপ</h3>
-      
-      <p style="font-size:13px; color:#ddd; margin-bottom:8px;">আমাদের গেম প্ল্যাটফর্মের অফিসিয়াল এজেন্ট হতে সরাসরি হোয়াটসঅ্যাপে যোগাযোগ করুন:</p>
-      
-      <a href="https://wa.me/8801787322043" target="_blank" style="text-decoration:none;">
-        <button class="game-btn" style="background:#25D366; color:white; display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:15px;">
-          💬 WhatsApp Contact (+8801787322043)
-        </button>
-      </a>
-
-      <hr style="border: 0.5px solid #333; margin: 10px 0;">
-
-      <h4 style="color:#ffb703; margin-bottom:6px;">গেমের এডমিন/এজেন্ট হতে ফর্মটি পূরণ করুন:</h4>
-      <input type="text" id="agency-name" placeholder="আপনার নাম">
-      <input type="text" id="agency-whatsapp" placeholder="আপনার WhatsApp নম্বর">
-      
-      <button class="game-btn" style="background:#ffb703; color:#000; margin-top:8px;" onclick="submitAgencyForm()">আবেদন জমা দিন</button>
-      
-      <p style="font-size:11px; color:#ff4757; text-align:center; margin-top:10px; font-weight:bold; background: rgba(255, 71, 87, 0.1); padding: 8px; border-radius: 5px; border: 1px dashed #ff4757;">
-        📌 প্যানেলের লোক আপনার সাথে অতি তাড়াতাড়ি যোগাযোগ করবে।
-      </p>
-    </div>
-  </div>
-
-  <!-- Custom Edit Profile Modal -->
-  <div class="modal" id="profile-modal">
-    <div class="modal-content">
-      <button class="close-btn" onclick="closeModal('profile-modal')">X</button>
-      <h3 style="color:#ffb703;">প্রোফাইল সেটিংস</h3>
-      <p style="font-size: 12px; color: #aaa; margin: 4px 0 10px 0;">গেমের মধ্যে নিজের পছন্দমতো নাম ও ছবি নির্বাচন করুন</p>
-      
-      <input type="text" id="profile-name-input" placeholder="আপনার গেমার নাম (Username)">
-      
-      <p style="font-size: 12px; color: #ffb703; margin-top: 10px; text-align: left;">ডিফল্ট প্রোফাইল ফটো সিলেক্ট করুন:</p>
-      <div class="avatar-grid">
-        <img class="avatar-option" src="https://api.dicebear.com/7.x/bottts/svg?seed=Avatar1" onclick="selectAvatar(this.src)">
-        <img class="avatar-option" src="https://api.dicebear.com/7.x/bottts/svg?seed=Avatar2" onclick="selectAvatar(this.src)">
-        <img class="avatar-option" src="https://api.dicebear.com/7.x/bottts/svg?seed=Avatar3" onclick="selectAvatar(this.src)">
-        <img class="avatar-option" src="https://api.dicebear.com/7.x/bottts/svg?seed=Avatar4" onclick="selectAvatar(this.src)">
+      <div style="display:flex; justify-content:center; gap:10px; margin-bottom:12px;">
+        <button class="admin-tab-btn active" id="tab-dep-btn" onclick="switchAdminTab('deposit')">ডিপোজিট রিকোয়েস্ট</button>
+        <button class="admin-tab-btn" id="tab-with-btn" onclick="switchAdminTab('withdraw')">উইথড্র রিকোয়েস্ট</button>
       </div>
 
-      <input type="text" id="profile-photo-input" placeholder="অথবা সরাসরি ইমেজ লিংক (Photo URL) দিন">
-      <button class="game-btn" style="background:#28a745; margin-top: 10px;" onclick="saveProfile()">সেভ করুন</button>
-    </div>
-  </div>
-
-  <!-- Matchmaking Setup Modal -->
-  <div class="modal" id="match-setup-modal">
-    <div class="modal-content" style="text-align:left;">
-      <button class="close-btn" onclick="closeModal('match-setup-modal')">X</button>
-      <h3 style="color:#ffb703; text-align:center;">লুডু বাজি সেটআপ</h3>
-      
-      <label style="font-size:12px; color:#aaa; margin-top:8px; display:block;">প্লেয়ার সংখ্যা সিলেক্ট করুন:</label>
-      <select id="match-player-count">
-        <option value="2">২ জন প্লেয়ার (1 vs 1)</option>
-        <option value="3">৩ জন প্লেয়ার</option>
-        <option value="4">৪ জন প্লেয়ার (Full Match)</option>
-      </select>
-
-      <label style="font-size:12px; color:#aaa; margin-top:8px; display:block;">বাজির পরিমাণ বেছে নিন:</label>
-      <select id="match-bet-amount">
-        <option value="50">৳ ৫০</option>
-        <option value="100">৳ ১০০</option>
-        <option value="150">৳ ১৫০</option>
-        <option value="200">৳ ২০০</option>
-        <option value="400">৳ ৪০০</option>
-        <option value="500">৳ ৫০০</option>
-      </select>
-
-      <button class="game-btn" style="background:#ffb703; color:#000; margin-top:15px;" onclick="initiateRealMatch()">ম্যাচে প্রবেশ করুন</button>
-    </div>
-  </div>
-
-  <!-- Waiting Lobby Modal -->
-  <div class="modal" id="waiting-lobby-modal">
-    <div class="modal-content">
-      <h3 style="color:#ffb703;">ম্যাচ খোঁজা হচ্ছে...</h3>
-      <div class="waiting-spinner"></div>
-      <p id="lobby-status-text" style="font-size:14px; margin: 10px 0;">অন্য প্লেয়ারদের জন্য অপেক্ষা করুন...</p>
-      <p style="font-size:12px; color:#aaa;">সংযুক্ত প্লেয়ার: <strong id="connected-count" style="color:#ffb703;">1</strong> / <span id="target-count">2</span></p>
-      <p style="font-size:13px; color:#ff4757; margin-top:8px;">বাকি সময়: <span id="lobby-timer">03:00</span></p>
-      <button class="game-btn" style="background:#dc3545; margin-top:15px;" onclick="cancelLobbySearch()">বাতিল করুন (Refund)</button>
+      <div id="admin-deposit-list"></div>
+      <div id="admin-withdraw-list" style="display:none;"></div>
     </div>
   </div>
 
@@ -287,15 +201,15 @@
       <button class="close-btn" onclick="closeModal('deposit-modal')">X</button>
       <h3 style="color:#ffb703;">ডিপোজিট করুন</h3>
       <div class="method-selector">
-        <label><input type="radio" name="dep_method" value="bKash" checked onclick="toggleDepositMethod('bkash')"> 💖 bKash</label>
-        <label><input type="radio" name="dep_method" value="Nagad" onclick="toggleDepositMethod('nagad')"> 🟠 Nagad</label>
+        <label><input type="radio" name="dep_method" value="bKash" checked> 💖 bKash</label>
+        <label><input type="radio" name="dep_method" value="Nagad"> 🟠 Nagad</label>
       </div>
-      <p id="dep-num-box" style="font-size:12px; color:#fff; background:#333; padding:8px; border-radius:5px; margin:5px 0;">
-        বিকাশ পার্সোনাল নম্বর: <strong style="color:#ffb703;">01787322043</strong>
+      <p style="font-size:12px; color:#fff; background:#333; padding:8px; border-radius:5px; margin:5px 0;">
+        পার্সোনাল নম্বর (Send Money): <strong style="color:#ffb703;">01787322043</strong>
       </p>
       <input type="number" id="dep-amount" placeholder="টাকার পরিমাণ">
       <input type="text" id="dep-trx" placeholder="Transaction ID (TrxID)">
-      <button class="game-btn" style="background:#28a745;" onclick="submitDeposit()">পাঠিয়ে দিন</button>
+      <button class="game-btn" style="background:#28a745;" onclick="submitDeposit()">রিকোয়েস্ট পাঠান</button>
     </div>
   </div>
 
@@ -310,11 +224,11 @@
       </div>
       <input type="number" id="with-amount" placeholder="পরিমাণ (টাকা)">
       <input type="text" id="with-phone" placeholder="বিকাশ/নগদ নম্বর">
-      <button class="game-btn" onclick="submitWithdraw()">রিকোয়েস্ট দিন</button>
+      <button class="game-btn" style="background:#e63946;" onclick="submitWithdraw()">উইথড্র রিকোয়েস্ট দিন</button>
     </div>
   </div>
 
-  <!-- Interactive Ludo Game Board -->
+  <!-- Ludo Board Modal -->
   <div class="modal" id="ludo-modal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal('ludo-modal')">X</button>
@@ -322,12 +236,12 @@
       <p style="font-size:12px; margin-top:4px;" id="ludo-turn-info">বর্তমান চাল: <strong id="current-player-turn" style="color:#e63946;">Red</strong></p>
       
       <div class="ludo-board-wrapper">
-        <canvas id="ludoCanvas" width="300" height="300"></canvas>
+        <canvas id="ludoCanvas" width="280" height="280"></canvas>
       </div>
 
       <div class="dice-area">
         <span id="ludo-status" style="font-size:13px;">চাল দিন...</span>
-        <button class="dice-btn" id="dice-btn-elem" onclick="playLudoTurn()">🎲 ছক্কা: <span id="dice-val">?</span></button>
+        <button class="dice-btn" id="dice-btn-elem" onclick="playLudoTurn()">🎲 চাল: <span id="dice-val">?</span></button>
       </div>
     </div>
   </div>
@@ -351,12 +265,7 @@
     let currentUsername = "";
     let isRegisterMode = false;
     let realBalance = 0;
-    let demoCoins = 1000;
     const ADMIN_PASSWORD = "445335";
-
-    let activeLobbyRef = null;
-    let lobbyTimerInterval = null;
-    let currentBetAmount = 0;
 
     if (currentUserKey && currentUserEmail) {
       showMainApp(currentUserKey, currentUserEmail);
@@ -369,47 +278,10 @@
       overlay.style.display = drawer.classList.contains('open') ? 'block' : 'none';
     }
 
-    /* Admin Functions */
-    function openAdminModal() {
-      document.getElementById('admin-input-pass').value = '';
-      openModal('admin-pass-modal');
-    }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    function verifyAdminPass() {
-      const pass = document.getElementById('admin-input-pass').value.trim();
-      if (pass === ADMIN_PASSWORD) {
-        closeModal('admin-pass-modal');
-        openModal('admin-dashboard-modal');
-        loadAgencyRequests();
-      } else {
-        alert("ভুল এডমিন পাসওয়ার্ড!");
-      }
-    }
-
-    function loadAgencyRequests() {
-      const listContainer = document.getElementById('admin-agency-list');
-      db.ref('agency_requests').on('value', (snapshot) => {
-        listContainer.innerHTML = '';
-        const data = snapshot.val();
-        if (data) {
-          Object.keys(data).forEach(key => {
-            const req = data[key];
-            const div = document.createElement('div');
-            div.className = 'data-list-item';
-            div.innerHTML = `
-              <b>নাম:</b> ${req.name}<br>
-              <b>WhatsApp:</b> ${req.whatsapp}<br>
-              <b>জিমেইল:</b> ${req.userEmail || 'N/A'}<br>
-              <a href="https://wa.me/${req.whatsapp}" target="_blank" style="color:#28a745; font-weight:bold;">📲 হোয়াটসঅ্যাপে কথা বলুন</a>
-            `;
-            listContainer.appendChild(div);
-          });
-        } else {
-          listContainer.innerHTML = 'কোনো এজেন্সীর আবেদন খালি নাই।';
-        }
-      });
-    }
-
+    /* AUTHENTICATION */
     function toggleAuthMode() {
       isRegisterMode = !isRegisterMode;
       document.getElementById('auth-title').innerText = isRegisterMode ? "নতুন একাউন্ট খুলুন" : "লগইন করুন";
@@ -426,35 +298,20 @@
       const pass = document.getElementById('auth-pass').value.trim();
       const confirmPass = document.getElementById('auth-confirm-pass').value.trim();
 
-      if (!email || !pass) return alert("জিমেইল এবং পাসওয়ার্ড সঠিকভাবে দিন!");
-      if (!email.includes("@") || !email.includes(".")) return alert("সঠিক জিমেইল এড্রেস দিন!");
-
+      if (!email || !pass) return alert("জিমেইল এবং পাসওয়ার্ড দিন!");
       const userKey = sanitizeKey(email);
       const userRef = db.ref('users_accounts/' + userKey);
 
       if (isRegisterMode) {
         if (pass !== confirmPass) return alert("দুইটি পাসওয়ার্ড মিলছে না!");
-        if (pass.length < 4) return alert("পাসওয়ার্ড অন্তত ৪ অক্ষরের হতে হবে!");
-
         userRef.once('value', (snapshot) => {
           if (snapshot.exists()) {
-            alert("এই জিমেইলে ইতিপূর্বে একাউন্ট খোলা হয়েছে! লগইন করুন।");
+            alert("এই জিমেইলে ইতিপূর্বে একাউন্ট খোলা হয়েছে!");
           } else {
             const defaultName = "Player_" + Math.floor(1000 + Math.random() * 9000);
-            const defaultPhoto = "https://api.dicebear.com/7.x/bottts/svg?seed=" + userKey;
-            
             userRef.set({ 
-              email: email, 
-              password: pass, 
-              username: defaultName, 
-              photo: defaultPhoto, 
-              real_balance: 0, 
-              demo_coins: 1000, 
-              created_at: Date.now() 
-            }).then(() => {
-              alert("একাউন্ট সফলভাবে খোলা হয়েছে!");
-              loginSuccess(userKey, email);
-            });
+              email: email, password: pass, username: defaultName, real_balance: 0, created_at: Date.now() 
+            }).then(() => loginSuccess(userKey, email));
           }
         });
       } else {
@@ -462,7 +319,7 @@
           if (snapshot.exists() && snapshot.val().password === pass) {
             loginSuccess(userKey, email);
           } else {
-            alert("জিমেইল অথবা পাসওয়ার্ড ভুল হয়েছে!");
+            alert("জিমেইল অথবা পাসওয়ার্ড ভুল!");
           }
         });
       }
@@ -484,141 +341,221 @@
 
       db.ref('users_accounts/' + key).on('value', (snapshot) => {
         const data = snapshot.val() || {};
-        demoCoins = data.demo_coins !== undefined ? data.demo_coins : 1000;
         realBalance = data.real_balance || 0;
         currentUsername = data.username || "Gamer";
         
-        document.getElementById('demo-balance').innerText = '🪙 ' + demoCoins;
         document.getElementById('real-val').innerText = realBalance.toFixed(2);
-        
         document.getElementById('user-display-name').innerText = currentUsername;
-        if (data.photo) document.getElementById('user-display-photo').src = data.photo;
+      });
+
+      loadMyTickets();
+    }
+
+    /* LOTTERY SYSTEM (FIXED RANDOM CODE) */
+    function buyLotteryTicket() {
+      if (realBalance < 50) {
+        return alert("লটারি টিকিট কেনার জন্য অন্তত ৳৫০ ব্যালেন্স লাগবে!");
+      }
+
+      const randomCode = "LUDO-" + Math.floor(100000 + Math.random() * 900000);
+      
+      // Deduct Balance
+      db.ref('users_accounts/' + currentUserKey).update({
+        real_balance: realBalance - 50
+      }).then(() => {
+        // Save Ticket
+        db.ref('lottery_tickets/' + currentUserKey).push({
+          code: randomCode,
+          boughtAt: Date.now()
+        }).then(() => {
+          alert("অভিনন্দন! আপনার লটারি টিকিট সফলভাবে জেনারেট হয়েছে: " + randomCode);
+        });
       });
     }
 
-    function submitAgencyForm() {
-      const name = document.getElementById('agency-name').value.trim();
-      const whatsapp = document.getElementById('agency-whatsapp').value.trim();
+    function loadMyTickets() {
+      db.ref('lottery_tickets/' + currentUserKey).on('value', (snapshot) => {
+        const container = document.getElementById('my-tickets-container');
+        container.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+          Object.keys(data).forEach(key => {
+            const ticket = data[key];
+            const span = document.createElement('span');
+            span.className = 'ticket-badge';
+            span.innerText = ticket.code;
+            container.appendChild(span);
+          });
+        } else {
+          container.innerText = 'কোনো টিকিট কেনা হয়নি।';
+        }
+      });
+    }
 
-      if (!name || !whatsapp) {
-        return alert("অনুগ্রহ করে আপনার নাম এবং WhatsApp নম্বরটি দিন!");
-      }
+    /* DEPOSIT & WITHDRAWAL REQUESTS */
+    function submitDeposit() {
+      const amount = parseFloat(document.getElementById('dep-amount').value);
+      const trx = document.getElementById('dep-trx').value.trim();
+      const method = document.querySelector('input[name="dep_method"]:checked').value;
 
-      db.ref('agency_requests').push({
-        name: name,
-        whatsapp: whatsapp,
-        userEmail: currentUserEmail,
+      if (!amount || amount <= 0 || !trx) return alert("সঠিক তথ্য পূরণ করুন!");
+
+      db.ref('deposit_requests').push({
+        userKey: currentUserKey,
+        email: currentUserEmail,
+        amount: amount,
+        trx: trx,
+        method: method,
+        status: 'pending',
         timestamp: Date.now()
       }).then(() => {
-        alert("আপনার এজেন্সী ফর্মটি সফলভাবে পাঠানো হয়েছে! প্যানেলের লোক অতি তাড়াতাড়ি আপনার সাথে কথা বলবে।");
-        document.getElementById('agency-name').value = '';
-        document.getElementById('agency-whatsapp').value = '';
-        closeModal('agency-modal');
+        alert("ডিপোজিট রিকোয়েস্ট জমা দেওয়া হয়েছে! এডমিন যাচাই করে ব্যালেন্স যুক্ত করবেন।");
+        document.getElementById('dep-amount').value = '';
+        document.getElementById('dep-trx').value = '';
+        closeModal('deposit-modal');
       });
     }
 
-    function openProfileModal() {
-      document.getElementById('profile-name-input').value = currentUsername;
-      openModal('profile-modal');
-    }
+    function submitWithdraw() {
+      const amount = parseFloat(document.getElementById('with-amount').value);
+      const phone = document.getElementById('with-phone').value.trim();
+      const method = document.querySelector('input[name="with_method"]:checked').value;
 
-    function selectAvatar(url) {
-      document.getElementById('profile-photo-input').value = url;
-    }
+      if (!amount || amount <= 0 || !phone) return alert("সঠিক তথ্য দিন!");
+      if (amount > realBalance) return alert("আপনার একাউন্টে পর্যাপ্ত ব্যালেন্স নেই!");
 
-    function saveProfile() {
-      const newName = document.getElementById('profile-name-input').value.trim();
-      const newPhoto = document.getElementById('profile-photo-input').value.trim();
-      
-      let updates = {};
-      if (newName) updates.username = newName;
-      if (newPhoto) updates.photo = newPhoto;
-
-      db.ref('users_accounts/' + currentUserKey).update(updates).then(() => {
-        alert("আপনার প্রোফাইল সফলভাবে পরিবর্তন হয়েছে!");
-        closeModal('profile-modal');
+      db.ref('withdraw_requests').push({
+        userKey: currentUserKey,
+        email: currentUserEmail,
+        amount: amount,
+        phone: phone,
+        method: method,
+        status: 'pending',
+        timestamp: Date.now()
+      }).then(() => {
+        alert("উইথড্র রিকোয়েস্ট পাঠানো হয়েছে!");
+        document.getElementById('with-amount').value = '';
+        document.getElementById('with-phone').value = '';
+        closeModal('withdraw-modal');
       });
     }
 
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    /* ADMIN PANEL LOGIC (ACCEPT / REJECT) */
+    function openAdminModal() {
+      document.getElementById('admin-input-pass').value = '';
+      openModal('admin-pass-modal');
+    }
 
-    /* MATCHMAKING & LOBBY */
-    function initiateRealMatch() {
-      const playerCount = parseInt(document.getElementById('match-player-count').value);
-      const betAmount = parseFloat(document.getElementById('match-bet-amount').value);
-
-      if (realBalance < betAmount) {
-        return alert(`আপনার ব্যালেন্স পর্যাপ্ত নয়! ৳${betAmount} প্রয়োজন।`);
+    function verifyAdminPass() {
+      const pass = document.getElementById('admin-input-pass').value.trim();
+      if (pass === ADMIN_PASSWORD) {
+        closeModal('admin-pass-modal');
+        openModal('admin-dashboard-modal');
+        loadAdminRequests();
+      } else {
+        alert("ভুল এডমিন পাসওয়ার্ড!");
       }
+    }
 
-      closeModal('match-setup-modal');
-      currentBetAmount = betAmount;
+    function switchAdminTab(tab) {
+      if (tab === 'deposit') {
+        document.getElementById('tab-dep-btn').classList.add('active');
+        document.getElementById('tab-with-btn').classList.remove('active');
+        document.getElementById('admin-deposit-list').style.display = 'block';
+        document.getElementById('admin-withdraw-list').style.display = 'none';
+      } else {
+        document.getElementById('tab-with-btn').classList.add('active');
+        document.getElementById('tab-dep-btn').classList.remove('active');
+        document.getElementById('admin-withdraw-list').style.display = 'block';
+        document.getElementById('admin-deposit-list').style.display = 'none';
+      }
+    }
 
-      db.ref('users_accounts/' + currentUserKey).update({ real_balance: realBalance - betAmount });
-
-      document.getElementById('target-count').innerText = playerCount;
-      openModal('waiting-lobby-modal');
-
-      const lobbyId = `lobby_${playerCount}_${betAmount}`;
-      activeLobbyRef = db.ref('active_lobbies/' + lobbyId);
-
-      activeLobbyRef.transaction((lobbyData) => {
-        if (!lobbyData) {
-          lobbyData = { target: playerCount, bet: betAmount, players: {} };
-        }
-        lobbyData.players[currentUserKey] = {
-          name: currentUsername,
-          joinedAt: Date.now()
-        };
-        return lobbyData;
-      });
-
-      activeLobbyRef.on('value', (snapshot) => {
+    function loadAdminRequests() {
+      // Deposit Requests
+      db.ref('deposit_requests').on('value', (snapshot) => {
+        const list = document.getElementById('admin-deposit-list');
+        list.innerHTML = '';
         const data = snapshot.val();
-        if (data && data.players) {
-          const joinedPlayers = Object.keys(data.players);
-          document.getElementById('connected-count').innerText = joinedPlayers.length;
-
-          if (joinedPlayers.length >= data.target) {
-            clearInterval(lobbyTimerInterval);
-            closeModal('waiting-lobby-modal');
-            startLudo('Real Mode (' + joinedPlayers.length + ' Players)');
-          }
+        if (data) {
+          Object.keys(data).forEach(id => {
+            const req = data[id];
+            if (req.status === 'pending') {
+              const div = document.createElement('div');
+              div.className = 'req-card';
+              div.innerHTML = `
+                <b>ইউজার:</b> ${req.email}<br>
+                <b>মেথড:</b> ${req.method} | <b>পরিমাণ:</b> ৳${req.amount}<br>
+                <b>TrxID:</b> ${req.trx}<br>
+                <div class="req-btn-group">
+                  <button class="btn-acc" onclick="approveDeposit('${id}', '${req.userKey}', ${req.amount})">Accept</button>
+                  <button class="btn-rej" onclick="rejectRequest('deposit_requests', '${id}')">Reject</button>
+                </div>
+              `;
+              list.appendChild(div);
+            }
+          });
+        } else {
+          list.innerHTML = 'কোনো পেন্ডিং ডিপোজিট রিকোয়েস্ট নেই।';
         }
       });
 
-      startLobbyTimer();
-    }
-
-    function startLobbyTimer() {
-      let timeLeft = 180;
-      clearInterval(lobbyTimerInterval);
-      
-      lobbyTimerInterval = setInterval(() => {
-        timeLeft--;
-        const mins = Math.floor(timeLeft / 60);
-        const secs = timeLeft % 60;
-        document.getElementById('lobby-timer').innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
-
-        if (timeLeft <= 0) {
-          clearInterval(lobbyTimerInterval);
-          alert("সময় শেষ! প্লেয়ার না পাওয়ার কারণে বাজি রিফান্ড করা হলো।");
-          cancelLobbySearch();
+      // Withdraw Requests
+      db.ref('withdraw_requests').on('value', (snapshot) => {
+        const list = document.getElementById('admin-withdraw-list');
+        list.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+          Object.keys(data).forEach(id => {
+            const req = data[id];
+            if (req.status === 'pending') {
+              const div = document.createElement('div');
+              div.className = 'req-card';
+              div.innerHTML = `
+                <b>ইউজার:</b> ${req.email}<br>
+                <b>মেথড:</b> ${req.method} | <b>নম্বর:</b> ${req.phone}<br>
+                <b>পরিমাণ:</b> ৳${req.amount}<br>
+                <div class="req-btn-group">
+                  <button class="btn-acc" onclick="approveWithdraw('${id}', '${req.userKey}', ${req.amount})">Accept</button>
+                  <button class="btn-rej" onclick="rejectRequest('withdraw_requests', '${id}')">Reject</button>
+                </div>
+              `;
+              list.appendChild(div);
+            }
+          });
+        } else {
+          list.innerHTML = 'কোনো পেন্ডিং উইথড্র রিকোয়েস্ট নেই।';
         }
-      }, 1000);
+      });
     }
 
-    function cancelLobbySearch() {
-      clearInterval(lobbyTimerInterval);
-      if (activeLobbyRef) {
-        activeLobbyRef.child('players/' + currentUserKey).remove();
-        activeLobbyRef.off();
-      }
-      db.ref('users_accounts/' + currentUserKey).update({ real_balance: realBalance + currentBetAmount });
-      closeModal('waiting-lobby-modal');
+    function approveDeposit(reqId, userKey, amount) {
+      db.ref('users_accounts/' + userKey + '/real_balance').transaction(curr => (curr || 0) + amount, () => {
+        db.ref('deposit_requests/' + reqId).update({ status: 'approved' });
+        alert("ডিপোজিট সফলভাবে এক্সেপ্ট করা হয়েছে!");
+      });
     }
 
+    function approveWithdraw(reqId, userKey, amount) {
+      db.ref('users_accounts/' + userKey + '/real_balance').transaction(curr => {
+        if ((curr || 0) >= amount) return curr - amount;
+        return curr;
+      }, (error, committed) => {
+        if (committed) {
+          db.ref('withdraw_requests/' + reqId).update({ status: 'approved' });
+          alert("উইথড্র সফলভাবে এক্সেপ্ট করা হয়েছে!");
+        } else {
+          alert("ইউজারের ব্যালেন্স অপর্যাপ্ত!");
+        }
+      });
+    }
+
+    function rejectRequest(path, reqId) {
+      db.ref(path + '/' + reqId).update({ status: 'rejected' });
+      alert("রিকোয়েস্ট রিজেক্ট করা হলো!");
+    }
+
+    /* CHAT SYSTEM */
     function sendChatMessage() {
       const input = document.getElementById('chat-input');
       if (input.value.trim() !== "") {
@@ -634,142 +571,51 @@
       document.getElementById('chat-messages').appendChild(div);
     });
 
-    /* LUDO ENGINE LOGIC */
-    const players = [
-      { name: 'Red', color: '#e63946' },
-      { name: 'Green', color: '#2a9d8f' },
-      { name: 'Yellow', color: '#ffb703' },
-      { name: 'Blue', color: '#00b4d8' }
-    ];
+    /* LUDO ENGINE (STABLE & NO-SHAKE) */
+    const players = [{ name: 'Red', color: '#e63946' }, { name: 'Green', color: '#2a9d8f' }, { name: 'Yellow', color: '#ffb703' }, { name: 'Blue', color: '#00b4d8' }];
     let turnIndex = 0;
-    let isProcessingTurn = false;
-    const MAX_STEPS = 57;
-
-    let pawns = {
-      Red: [0, 0, 0, 0],
-      Green: [0, 0, 0, 0],
-      Yellow: [0, 0, 0, 0],
-      Blue: [0, 0, 0, 0]
-    };
+    let pawns = { Red: [0,0,0,0], Green: [0,0,0,0], Yellow: [0,0,0,0], Blue: [0,0,0,0] };
 
     function startLudo(mode) {
       document.getElementById('ludo-title').innerText = "Ludo Board (" + mode + ")";
       openModal('ludo-modal');
-      resetLudoGameState();
       setTimeout(renderLudoBoard, 100);
     }
 
-    function resetLudoGameState() {
-      turnIndex = 0;
-      isProcessingTurn = false;
-      pawns = { Red: [0, 0, 0, 0], Green: [0, 0, 0, 0], Yellow: [0, 0, 0, 0], Blue: [0, 0, 0, 0] };
-      updateTurnUI('চাল দিন...');
-    }
-
-    function updateTurnUI(msg) {
-      const player = players[turnIndex];
-      const elem = document.getElementById('current-player-turn');
-      elem.innerText = player.name;
-      elem.style.color = player.color;
-      document.getElementById('ludo-status').innerText = msg;
-    }
-
     function playLudoTurn() {
-      if (isProcessingTurn) return;
-      isProcessingTurn = true;
-
       const diceRoll = Math.floor(Math.random() * 6) + 1;
       document.getElementById('dice-val').innerText = diceRoll;
-
-      const activeColor = players[turnIndex].name;
-      const currentPawns = pawns[activeColor];
-
-      let eligiblePawns = [];
-      
-      currentPawns.forEach((pos, idx) => {
-        if (pos === 0 && diceRoll === 6) {
-          eligiblePawns.push(idx);
-        } else if (pos > 0 && pos < MAX_STEPS && (pos + diceRoll <= MAX_STEPS)) {
-          eligiblePawns.push(idx);
-        }
-      });
-
-      if (eligiblePawns.length > 0) {
-        const randomPawnIndex = eligiblePawns[Math.floor(Math.random() * eligiblePawns.length)];
-        
-        if (currentPawns[randomPawnIndex] === 0) {
-          currentPawns[randomPawnIndex] = 1;
-          updateTurnUI(`গুটি ঘরে বের হলো! (ছক্কা: 6)`);
-        } else {
-          currentPawns[randomPawnIndex] += diceRoll;
-          if (currentPawns[randomPawnIndex] === MAX_STEPS) {
-            updateTurnUI(`অভিনন্দন! একটি গুটি পেকে গেছে 🎉`);
-          } else {
-            updateTurnUI(`গুটি এগিয়ে গেল ${diceRoll} ঘর`);
-          }
-        }
-      } else {
-        updateTurnUI(diceRoll === 6 ? "চাল দেওয়ার ঘর নেই!" : "ছক্কা ছাড়া ঘর থেকে গুটি বের হবে না!");
-      }
-
+      turnIndex = (turnIndex + 1) % 4;
+      document.getElementById('current-player-turn').innerText = players[turnIndex].name;
+      document.getElementById('current-player-turn').style.color = players[turnIndex].color;
       renderLudoBoard();
-
-      setTimeout(() => {
-        if (diceRoll !== 6) {
-          turnIndex = (turnIndex + 1) % 4;
-        }
-        updateTurnUI('পরবর্তী প্লেয়ারের চাল...');
-        isProcessingTurn = false;
-      }, 1200);
     }
 
     function renderLudoBoard() {
       const canvas = document.getElementById('ludoCanvas');
+      if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, 300, 300);
+      ctx.clearRect(0, 0, 280, 280);
 
-      ctx.fillStyle = "#e63946"; ctx.fillRect(0, 0, 120, 120);
-      ctx.fillStyle = "#2a9d8f"; ctx.fillRect(180, 0, 120, 120);
-      ctx.fillStyle = "#ffb703"; ctx.fillRect(0, 180, 120, 120);
-      ctx.fillStyle = "#00b4d8"; ctx.fillRect(180, 180, 120, 120);
+      ctx.fillStyle = "#e63946"; ctx.fillRect(0, 0, 110, 110);
+      ctx.fillStyle = "#2a9d8f"; ctx.fillRect(170, 0, 110, 110);
+      ctx.fillStyle = "#ffb703"; ctx.fillRect(0, 170, 110, 110);
+      ctx.fillStyle = "#00b4d8"; ctx.fillRect(170, 170, 110, 110);
 
       ctx.fillStyle = "#fff";
-      ctx.fillRect(20, 20, 80, 80); ctx.fillRect(200, 20, 80, 80);
-      ctx.fillRect(20, 200, 80, 80); ctx.fillRect(200, 200, 80, 80);
-      ctx.fillStyle = "#111"; ctx.fillRect(120, 120, 60, 60);
+      ctx.fillRect(20, 20, 70, 70); ctx.fillRect(190, 20, 70, 70);
+      ctx.fillRect(20, 190, 70, 70); ctx.fillRect(190, 190, 70, 70);
+      ctx.fillStyle = "#111"; ctx.fillRect(110, 110, 60, 60);
 
-      ctx.strokeStyle = "#ddd"; ctx.lineWidth = 1;
-      ctx.strokeRect(120, 0, 60, 120);
-      ctx.strokeRect(120, 180, 60, 120);
-      ctx.strokeRect(0, 120, 120, 60);
-      ctx.strokeRect(180, 120, 120, 60);
-
-      renderColorPawns(ctx, 'Red', "#e63946", [[40,40], [80,40], [40,80], [80,80]]);
-      renderColorPawns(ctx, 'Green', "#2a9d8f", [[220,40], [260,40], [220,80], [260,80]]);
-      renderColorPawns(ctx, 'Yellow', "#ffb703", [[40,220], [80,220], [40,260], [80,260]]);
-      renderColorPawns(ctx, 'Blue', "#00b4d8", [[220,220], [260,220], [220,260], [260,260]]);
+      // Home Pawns
+      drawPawn(ctx, 40, 40, "#e63946"); drawPawn(ctx, 210, 40, "#2a9d8f");
+      drawPawn(ctx, 40, 210, "#ffb703"); drawPawn(ctx, 210, 210, "#00b4d8");
     }
 
-    function renderColorPawns(ctx, colorName, hexColor, homeCoords) {
-      pawns[colorName].forEach((pos, idx) => {
-        let coord = (pos === 0) ? homeCoords[idx] : ((pos === MAX_STEPS) ? [150, 150] : getBoardPathCoord(colorName, pos));
-        drawPawnCircle(ctx, coord[0], coord[1], hexColor);
-      });
-    }
-
-    function getBoardPathCoord(color, step) {
-      let startX = 40, startY = 135;
-      if (color === 'Red') { startX = 20 + (step * 4); startY = 135; }
-      if (color === 'Green') { startX = 165; startY = 20 + (step * 4); }
-      if (color === 'Yellow') { startX = 135; startY = 280 - (step * 4); }
-      if (color === 'Blue') { startX = 280 - (step * 4); startY = 165; }
-      return [Math.min(280, Math.max(20, startX)), Math.min(280, Math.max(20, startY))];
-    }
-
-    function drawPawnCircle(ctx, x, y, color) {
+    function drawPawn(ctx, x, y, color) {
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(x, y, 9, 0, Math.PI * 2);
+      ctx.arc(x, y, 10, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = "#fff";
       ctx.lineWidth = 2;
