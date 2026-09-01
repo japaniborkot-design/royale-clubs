@@ -2,23 +2,22 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ludo Lottery BD</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #0d0f17; color: #fff; padding: 12px; max-width: 450px; margin: 0 auto; min-height: 100vh; position: relative; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: manipulation; }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; background-color: #0d0f17; color: #fff; }
+    body { padding: 12px; max-width: 450px; margin: 0 auto; position: relative; }
 
     /* Top Bar */
     .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 12px; }
     .brand { font-size: 20px; font-weight: bold; color: #ffb703; display: flex; align-items: center; gap: 8px; }
-
     .menu-icon { font-size: 24px; cursor: pointer; color: #ffb703; }
 
-    /* User Profile & Balance Area */
+    /* Profile & Balance */
     .profile-card { background: #161a26; border: 1px solid #242b3d; border-radius: 16px; padding: 15px; text-align: center; margin-bottom: 15px; }
-    .avatar-wrapper { position: relative; display: inline-block; margin-bottom: 8px; }
-    .user-avatar { width: 65px; height: 65px; border-radius: 50%; border: 3px solid #ffb703; background: #222; }
-    .user-name { font-size: 18px; font-weight: bold; color: #fff; }
+    .user-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #ffb703; background: #222; }
+    .user-name { font-size: 18px; font-weight: bold; color: #fff; margin-top: 5px; }
     .user-subtitle { font-size: 11px; color: #8a94a6; }
 
     .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0 10px 0; }
@@ -26,52 +25,59 @@
     .balance-box.demo { border-color: #00b4d8; }
     .balance-box.real { border-color: #ffb703; }
     .bal-title { font-size: 12px; color: #aaa; margin-bottom: 4px; }
-    .bal-val { font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .bal-val { font-size: 16px; font-weight: bold; }
 
     .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .btn-dep { background: #28a745; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
-    .btn-with { background: #dc3545; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .btn-dep { background: #28a745; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-with { background: #dc3545; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
     /* Section Cards */
     .section-card { background: #161a26; border: 1px solid #242b3d; border-radius: 16px; padding: 15px; margin-bottom: 15px; text-align: center; }
-    .section-title { font-size: 16px; color: #ffb703; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .section-title { font-size: 16px; color: #ffb703; font-weight: bold; margin-bottom: 12px; }
 
-    .btn-mode-demo { background: #00b4d8; color: #fff; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; font-size: 15px; margin-bottom: 8px; cursor: pointer; }
-    .btn-mode-real { background: #28a745; color: #fff; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; font-size: 15px; cursor: pointer; }
+    .btn-mode-demo { background: #00b4d8; color: #fff; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; margin-bottom: 8px; cursor: pointer; }
+    .btn-mode-real { background: #28a745; color: #fff; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
 
     .prize-pool { font-size: 20px; font-weight: bold; color: #ffb703; margin: 5px 0 12px 0; }
-    .btn-ticket { background: #ffb703; color: #000; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; font-size: 15px; cursor: pointer; }
+    .btn-ticket { background: #ffb703; color: #000; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
+
+    /* Tickets Box */
+    .ticket-list { font-size: 12px; color: #66fcf1; margin-top: 8px; word-break: break-all; }
 
     /* Chat Room */
-    .chat-box { background: #0d0f17; border: 1px solid #242b3d; border-radius: 10px; height: 120px; padding: 8px; text-align: left; overflow-y: auto; font-size: 13px; margin-bottom: 8px; }
+    .chat-box { background: #0d0f17; border: 1px solid #242b3d; border-radius: 10px; height: 100px; padding: 8px; text-align: left; overflow-y: auto; font-size: 13px; margin-bottom: 8px; }
     .chat-msg { margin-bottom: 4px; }
     .chat-user { color: #ffb703; font-weight: bold; }
     .chat-input-group { display: flex; gap: 6px; }
     .chat-input { flex: 1; background: #0d0f17; border: 1px solid #242b3d; border-radius: 6px; padding: 8px; color: #fff; }
     .btn-send { background: #ffb703; color: #000; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-    /* Side Drawer Menu (Overlaid) */
+    /* Drawer Side Menu */
     .drawer-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
-    .drawer { position: fixed; top: 0; right: 0; width: 80%; max-width: 320px; height: 100%; background: #161a26; border-left: 2px solid #ffb703; z-index: 1001; padding: 20px 15px; display: flex; flex-direction: column; justify-content: space-between; transform: translateX(100%); transition: transform 0.3s ease; }
+    .drawer { position: fixed; top: 0; right: 0; width: 80%; max-width: 300px; height: 100%; background: #161a26; border-left: 2px solid #ffb703; z-index: 1001; padding: 20px 15px; display: flex; flex-direction: column; justify-content: space-between; transform: translateX(100%); transition: transform 0.3s ease; }
     .drawer.active { transform: translateX(0); }
-    .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #242b3d; padding-bottom: 12px; margin-bottom: 15px; }
-    .drawer-title { color: #ffb703; font-size: 18px; font-weight: bold; }
-    .btn-close-drawer { background: #ff4757; color: white; border: none; width: 30px; height: 30px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #242b3d; padding-bottom: 12px; }
+    .menu-item { padding: 12px 0; border-bottom: 1px solid #242b3d; color: #fff; font-size: 15px; cursor: pointer; }
 
-    .menu-list { list-style: none; text-align: left; }
-    .menu-item { padding: 12px 10px; border-bottom: 1px solid #242b3d; color: #fff; font-size: 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
-    .menu-item.logout { color: #ff4757; }
-
-    .btn-telegram { background: #0088cc; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
-
-    /* Modal / Popup */
+    /* Modals */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
-    .modal-content { background: #161a26; border: 1px solid #242b3d; border-radius: 16px; padding: 20px; width: 90%; max-width: 380px; text-align: center; position: relative; }
+    .modal-content { background: #161a26; border: 1px solid #ffb703; border-radius: 16px; padding: 20px; width: 90%; max-width: 380px; text-align: center; position: relative; max-height: 90vh; overflow-y: auto; }
+    .btn-close { background: #ff4757; color: white; border: none; width: 28px; height: 28px; border-radius: 6px; position: absolute; right: 12px; top: 12px; cursor: pointer; font-weight: bold; }
 
-    /* Ludo Game Board UI */
-    .ludo-container { position: relative; width: 300px; height: 300px; margin: 15px auto; border: 3px solid #333; border-radius: 8px; overflow: hidden; background: #fff; }
+    /* Form Elements */
+    .form-input { width: 100%; padding: 10px; margin: 8px 0; background: #0d0f17; border: 1px solid #242b3d; border-radius: 6px; color: #fff; }
+    .btn-submit { background: #ffb703; color: #000; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+
+    /* Ludo Canvas Box */
+    .ludo-container { position: relative; width: 280px; height: 280px; margin: 15px auto; border: 3px solid #fff; border-radius: 6px; background: #fff; overflow: hidden; }
     #ludoCanvas { width: 100%; height: 100%; display: block; }
-    .center-dice { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border-radius: 8px; border: 3px solid #fff; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: bold; color: #fff; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+    .center-dice { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 46px; height: 46px; border-radius: 8px; border: 2px solid #000; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; color: #fff; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+
+    /* Request Item in Admin */
+    .req-item { background: #0d0f17; padding: 10px; border-radius: 8px; border: 1px solid #242b3d; margin-bottom: 8px; text-align: left; font-size: 13px; }
+    .req-btns { display: flex; gap: 8px; margin-top: 6px; }
+    .btn-acc { background: #28a745; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    .btn-rej { background: #dc3545; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -82,11 +88,9 @@
     <div class="menu-icon" onclick="toggleDrawer(true)">☰</div>
   </div>
 
-  <!-- Profile & Balance Card -->
+  <!-- Profile & Balance -->
   <div class="profile-card">
-    <div class="avatar-wrapper">
-      <img class="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Me" alt="Avatar">
-    </div>
+    <img class="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Me" alt="Avatar">
     <div class="user-name">Me!</div>
     <div class="user-subtitle">(Public Gamer Identity)</div>
 
@@ -97,39 +101,37 @@
       </div>
       <div class="balance-box real">
         <div class="bal-title">Real Balance</div>
-        <div class="bal-val" style="color:#fff;">৳ <span id="real-bal-val">498850.00</span></div>
+        <div class="bal-val" style="color:#ffb703;">৳ <span id="real-bal-val">500.00</span></div>
       </div>
     </div>
 
     <div class="action-btns">
-      <button class="btn-dep" onclick="alert('ডিপোজিট সিস্টেম শীঘ্রই চালু হবে')">+ Deposit</button>
-      <button class="btn-with" onclick="alert('উইথড্র সিস্টেম শীঘ্রই চালু হবে')">- Withdraw</button>
+      <button class="btn-dep" onclick="openModal('dep-modal')">+ Deposit</button>
+      <button class="btn-with" onclick="openModal('with-modal')">- Withdraw</button>
     </div>
   </div>
 
-  <!-- Real Time Multiplayer Section -->
+  <!-- Multiplayer Ludo Section -->
   <div class="section-card">
     <div class="section-title">🎮 রিয়েল-টাইম মাল্টিপ্লেয়ার লুডু</div>
-    <button class="btn-mode-demo" onclick="startLudoGame('demo')">Play Demo Ludo Board</button>
-    <button class="btn-mode-real" onclick="showModeSelection()">⚔️ Play Real Match Setup</button>
+    <button class="btn-mode-demo" onclick="startLudo('demo')">Play Demo Ludo Board</button>
+    <button class="btn-mode-real" onclick="startLudo('real')">⚔️ Play Real Match Setup</button>
   </div>
 
   <!-- Weekly Lottery Section -->
   <div class="section-card">
     <div class="section-title">🏆 সাপ্তাহিক লটারি ড্র</div>
     <div class="prize-pool">প্রাইজ পুল: ৳২৫,০০০</div>
-    <button class="btn-ticket" onclick="buyTicket()">Buy Ticket (৳৫০)</button>
+    <button class="btn-ticket" onclick="buyLotteryTicket()">Buy Ticket (৳৫০)</button>
+    <div class="ticket-list" id="my-tickets"></div>
   </div>
 
-  <!-- Public Chat Room -->
+  <!-- Public Chat -->
   <div class="section-card">
     <div class="section-title">💬 পাবলিক আড্ডা রুম</div>
     <div class="chat-box" id="chat-box">
-      <div class="chat-msg"><span class="chat-user">shadugaming445:</span> Hi</div>
-      <div class="chat-msg"><span class="chat-user">iconmurad445:</span> Hello</div>
-      <div class="chat-msg"><span class="chat-user">iconmurad445:</span> Hi</div>
-      <div class="chat-msg"><span class="chat-user">Me!:</span> Hi</div>
       <div class="chat-msg"><span class="chat-user">Gamer:</span> Kemon aco sobai</div>
+      <div class="chat-msg"><span class="chat-user">Me!:</span> Hi</div>
     </div>
     <div class="chat-input-group">
       <input type="text" id="chat-input" class="chat-input" placeholder="মেসেজ লিখুন...">
@@ -137,146 +139,228 @@
     </div>
   </div>
 
-  <!-- Drawer Menu -->
+  <!-- Side Drawer Menu -->
   <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer(false)"></div>
   <div class="drawer" id="drawer">
     <div>
       <div class="drawer-header">
-        <div class="drawer-title">মেনু অপশন</div>
-        <button class="btn-close-drawer" onclick="toggleDrawer(false)">X</button>
+        <h3 style="color:#ffb703;">মেনু অপশন</h3>
+        <button class="btn-close" style="position:static" onclick="toggleDrawer(false)">X</button>
       </div>
-      <ul class="menu-list">
-        <li class="menu-item" onclick="alert('প্রোফাইল এডিট ফিচার আপডেট হচ্ছে')">✏️ এডিট প্রোফাইল (Edit Profile)</li>
-        <li class="menu-item" onclick="adminLogin()">🔒 এডমিন লগইন (Admin)</li>
-        <li class="menu-item logout" onclick="alert('লগআউট করা হয়েছে')">🚪 লগআউট (Logout)</li>
-      </ul>
+      <div class="menu-item" onclick="alert('প্রোফাইল আপডেট ফিচার শীঘ্রই আসছে')">✏️ এডিট প্রোফাইল (Edit Profile)</div>
+      <div class="menu-item" onclick="openAdminPanel()">🔒 এডমিন লগইন (Admin)</div>
+      <div class="menu-item" style="color:#ff4757" onclick="alert('লগআউট করা হয়েছে')">🚪 লগআউট (Logout)</div>
     </div>
-    <div>
-      <button class="btn-telegram" onclick="window.open('https://t.me', '_blank')">✈️ হেল্প সেন্টার (Telegram)</button>
+    <button style="background:#0088cc; color:#fff; border:none; padding:12px; border-radius:8px; font-weight:bold;" onclick="window.open('https://t.me','_blank')">✈️ হেল্প সেন্টার (Telegram)</button>
+  </div>
+
+  <!-- Deposit Modal -->
+  <div class="modal" id="dep-modal">
+    <div class="modal-content">
+      <button class="btn-close" onclick="closeModal('dep-modal')">X</button>
+      <h3 style="color:#28a745; margin-bottom:10px;">ডিপোজিট রিকোয়েস্ট</h3>
+      <input type="number" id="dep-amount" class="form-input" placeholder="টাকার পরিমাণ (৳)">
+      <input type="text" id="dep-trx" class="form-input" placeholder="TrxID (ট্রানজেকশন আইডি)">
+      <button class="btn-submit" onclick="submitDeposit()">রিকোয়েস্ট পাঠান</button>
+    </div>
+  </div>
+
+  <!-- Withdraw Modal -->
+  <div class="modal" id="with-modal">
+    <div class="modal-content">
+      <button class="btn-close" onclick="closeModal('with-modal')">X</button>
+      <h3 style="color:#dc3545; margin-bottom:10px;">উইথড্র রিকোয়েস্ট</h3>
+      <input type="number" id="with-amount" class="form-input" placeholder="টাকার পরিমাণ (৳)">
+      <input type="text" id="with-num" class="form-input" placeholder="বিকাশ/নগদ নাম্বার">
+      <button class="btn-submit" onclick="submitWithdraw()">উইথড্র করুন</button>
+    </div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div class="modal" id="admin-modal">
+    <div class="modal-content">
+      <button class="btn-close" onclick="closeModal('admin-modal')">X</button>
+      <h3 style="color:#ffb703; margin-bottom:12px;">এডমিন প্যানেল</h3>
+      <div id="admin-req-list">
+        <p style="font-size:12px; color:#aaa;">কোনো পেন্ডিং রিকোয়েস্ট নেই</p>
+      </div>
     </div>
   </div>
 
   <!-- Ludo Match Canvas Modal -->
   <div class="modal" id="ludo-modal">
     <div class="modal-content">
-      <button class="btn-close-drawer" style="position:absolute; right:15px; top:15px;" onclick="quitGame()">X</button>
-      <h3 style="color:#66fcf1; margin-bottom: 4px;">Ludo Match</h3>
+      <button class="btn-close" onclick="quitLudo()">X</button>
+      <h3 style="color:#66fcf1; margin-bottom: 4px;">Ludo Arena</h3>
       <p style="font-size:12px;">বর্তমান চাল: <strong id="current-player-text" style="color:#ffb703;">Yellow Player</strong></p>
 
       <div class="ludo-container">
-        <canvas id="ludoCanvas" width="300" height="300"></canvas>
+        <canvas id="ludoCanvas" width="280" height="280"></canvas>
         <div class="center-dice" id="center-dice" onclick="rollDice()" style="background: #ffb703;">
-          <span id="dice-value">4</span>
+          <span id="dice-value">🎲</span>
         </div>
       </div>
-      <p style="font-size:12px; color:#aaa;">সেন্টারের ডাইসে ট্যাপ করে চাল দিন</p>
+      <p style="font-size:11px; color:#aaa;">মাঝখানের ডাইসে ট্যাপ করে চাল দিন</p>
     </div>
   </div>
 
   <script>
+    let realBalance = 500.00;
     let demoCoins = 1000;
-    let realBalance = 498850.00;
-    let currentMode = 'demo';
-    let currentTurnIndex = 2; // Yellow Player Default from Screenshot
+    let myTickets = [];
+    let pendingRequests = [];
+
     const players = ['Red', 'Green', 'Yellow', 'Blue'];
-    const playerColors = {
-      Red: '#e63946',
-      Green: '#2a9d8f',
-      Yellow: '#ffb703',
-      Blue: '#00b4d8'
-    };
+    const playerColors = { Red: '#e63946', Green: '#2a9d8f', Yellow: '#ffb703', Blue: '#00b4d8' };
+    let currentTurnIndex = 2; // Default Yellow
 
     function toggleDrawer(open) {
       document.getElementById('drawer').classList.toggle('active', open);
       document.getElementById('drawer-overlay').style.display = open ? 'block' : 'none';
     }
 
-    function adminLogin() {
-      const pass = prompt("এডমিন পাসওয়ার্ড লিখুন:");
-      if (pass === "admin123") {
-        alert("এডমিন ড্যাশবোর্ডে স্বাগতম!");
-      } else if(pass) {
-        alert("ভুল পাসওয়ার্ড!");
-      }
-    }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    function buyTicket() {
+    /* LOTTERY LOGIC WITH RANDOM TICKET CODE */
+    function buyLotteryTicket() {
       if (realBalance >= 50) {
         realBalance -= 50;
         document.getElementById('real-bal-val').innerText = realBalance.toFixed(2);
-        alert("লটারি টিকিট সফলভাবে কেনা হয়েছে!");
+        
+        // Generate Unique Random Code
+        const randomCode = 'TK-' + Math.floor(10000 + Math.random() * 90000);
+        myTickets.push(randomCode);
+
+        document.getElementById('my-tickets').innerHTML = "আপনার টিকিটসমূহ: <br>" + myTickets.join(', ');
+        alert(`সফলভাবে লটারি কেনা হয়েছে!\nআপনার টিকিট কোড: ${randomCode}`);
       } else {
-        alert("পর্যাপ্ত রিয়েল ব্যালেন্স নেই!");
+        alert("পর্যাপ্ত রিয়েল ব্যালেন্স নেই (ফি ৳৫০)!");
       }
     }
 
+    /* DEPOSIT & WITHDRAW LOGIC */
+    function submitDeposit() {
+      const amt = parseFloat(document.getElementById('dep-amount').value);
+      const trx = document.getElementById('dep-trx').value;
+      if (amt > 0 && trx) {
+        pendingRequests.push({ id: Date.now(), type: 'Deposit', amount: amt, info: trx });
+        alert("ডিপোজিট রিকোয়েস্ট পাঠানো হয়েছে! এডমিন এপ্রুভ করলে ব্যালেন্স যোগ হবে।");
+        closeModal('dep-modal');
+      } else { alert("সঠিক তথ্য দিন!"); }
+    }
+
+    function submitWithdraw() {
+      const amt = parseFloat(document.getElementById('with-amount').value);
+      const num = document.getElementById('with-num').value;
+      if (amt > 0 && num) {
+        if (realBalance >= amt) {
+          pendingRequests.push({ id: Date.now(), type: 'Withdraw', amount: amt, info: num });
+          alert("উইথড্র রিকোয়েস্ট জমা দেওয়া হয়েছে!");
+          closeModal('with-modal');
+        } else { alert("পর্যাপ্ত ব্যালেন্স নেই!"); }
+      } else { alert("সঠিক তথ্য দিন!"); }
+    }
+
+    /* ADMIN PANEL LOGIC */
+    function openAdminPanel() {
+      const pass = prompt("এডমিন পাসওয়ার্ড দিন:");
+      if (pass === "admin123") {
+        renderAdminRequests();
+        openModal('admin-modal');
+      } else if (pass) { alert("ভুল পাসওয়ার্ড!"); }
+    }
+
+    function renderAdminRequests() {
+      const box = document.getElementById('admin-req-list');
+      if (pendingRequests.length === 0) {
+        box.innerHTML = '<p style="font-size:12px; color:#aaa;">কোনো পেন্ডিং রিকোয়েস্ট নেই</p>';
+        return;
+      }
+      box.innerHTML = '';
+      pendingRequests.forEach(req => {
+        const item = document.createElement('div');
+        item.className = 'req-item';
+        item.innerHTML = `
+          <strong>${req.type} Request</strong><br>
+          পরিমাণ: ৳${req.amount} | তথ্য: ${req.info}
+          <div class="req-btns">
+            <button class="btn-acc" onclick="handleAdminReq(${req.id}, true)">Accept</button>
+            <button class="btn-rej" onclick="handleAdminReq(${req.id}, false)">Reject</button>
+          </div>
+        `;
+        box.appendChild(item);
+      });
+    }
+
+    function handleAdminReq(id, isAccept) {
+      const req = pendingRequests.find(r => r.id === id);
+      if (req && isAccept) {
+        if (req.type === 'Deposit') {
+          realBalance += req.amount;
+        } else if (req.type === 'Withdraw') {
+          realBalance -= req.amount;
+        }
+        document.getElementById('real-bal-val').innerText = realBalance.toFixed(2);
+        alert(`${req.type} এক্সেপ্ট করা হয়েছে!`);
+      } else {
+        alert(`${req.type} রিজেক্ট করা হয়েছে!`);
+      }
+      pendingRequests = pendingRequests.filter(r => r.id !== id);
+      renderAdminRequests();
+    }
+
+    /* CHAT */
     function sendChatMessage() {
       const input = document.getElementById('chat-input');
-      if (input.value.trim() !== "") {
-        const chatBox = document.getElementById('chat-box');
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'chat-msg';
-        msgDiv.innerHTML = `<span class="chat-user">Me!:</span> ${input.value}`;
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-        input.value = "";
+      if (input.value.trim()) {
+        const box = document.getElementById('chat-box');
+        box.innerHTML += `<div class="chat-msg"><span class="chat-user">Me!:</span> ${input.value}</div>`;
+        box.scrollTop = box.scrollHeight;
+        input.value = '';
       }
     }
 
-    function showModeSelection() {
-      const fee = prompt("ম্যাচ এন্ট্রি ফি লিখুন (৳১০, ৳২০, ৳৫০, ৳১০০):", "10");
-      if (fee) {
-        if (realBalance >= parseFloat(fee)) {
-          alert("প্লেয়ার খোঁজা হচ্ছে... ৫ মিনিট ওয়েট করতে হবে।");
-          realBalance -= parseFloat(fee);
-          document.getElementById('real-bal-val').innerText = realBalance.toFixed(2);
-          startLudoGame('real');
-        } else {
-          alert("পর্যাপ্ত ব্যালেন্স নেই!");
-        }
+    /* LUDO GAME & BOARD DESIGN */
+    function startLudo(mode) {
+      if (mode === 'real') {
+        if (realBalance < 10) return alert("রিয়েল ম্যাচের জন্য পর্যাপ্ত ব্যালেন্স নেই!");
+        realBalance -= 10;
+        document.getElementById('real-bal-val').innerText = realBalance.toFixed(2);
       }
-    }
-
-    function startLudoGame(mode) {
-      currentMode = mode;
-      document.getElementById('ludo-modal').style.display = 'flex';
+      openModal('ludo-modal');
       updateTurn();
       setTimeout(drawBoard, 100);
     }
 
-    function quitGame() {
-      if (confirm("আপনি কি গেম থেকে বের হতে চান? মাঝপথে বের হলে এন্ট্রি ফি কেটে নেওয়া হবে!")) {
-        document.getElementById('ludo-modal').style.display = 'none';
+    function quitLudo() {
+      if (confirm("গেম থেকে বের হতে চান? বের হলে এন্ট্রি ফি কেটে নেওয়া হবে!")) {
+        closeModal('ludo-modal');
       }
     }
 
     function rollDice() {
-      const diceVal = Math.floor(Math.random() * 6) + 1;
-      document.getElementById('dice-value').innerText = diceVal;
+      const val = Math.floor(Math.random() * 6) + 1;
+      document.getElementById('dice-value').innerText = val;
       currentTurnIndex = (currentTurnIndex + 1) % 4;
       updateTurn();
     }
 
     function updateTurn() {
-      const colorName = players[currentTurnIndex];
-      const hexColor = playerColors[colorName];
-      const textElem = document.getElementById('current-player-text');
-      textElem.innerText = colorName + " Player";
-      textElem.style.color = hexColor;
-
-      const diceBox = document.getElementById('center-dice');
-      diceBox.style.background = hexColor;
+      const c = players[currentTurnIndex];
+      const hex = playerColors[c];
+      document.getElementById('current-player-text').innerText = c + " Player";
+      document.getElementById('current-player-text').style.color = hex;
+      document.getElementById('center-dice').style.background = hex;
     }
 
-    /* DRAW LUDO BOARD WITH PAWNS */
     function drawBoard() {
       const canvas = document.getElementById('ludoCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, 300, 300);
+      ctx.clearRect(0, 0, 280, 280);
 
-      const size = 300;
-      const box = size / 15;
+      const box = 280 / 15;
 
       // Base Homes
       ctx.fillStyle = playerColors.Red; ctx.fillRect(0, 0, box * 6, box * 6);
@@ -284,14 +368,14 @@
       ctx.fillStyle = playerColors.Yellow; ctx.fillRect(0, box * 9, box * 6, box * 6);
       ctx.fillStyle = playerColors.Blue; ctx.fillRect(box * 9, box * 9, box * 6, box * 6);
 
-      // Inner White Boxes
+      // Inner White Circles
       ctx.fillStyle = "#fff";
       ctx.fillRect(box, box, box * 4, box * 4);
       ctx.fillRect(box * 10, box, box * 4, box * 4);
       ctx.fillRect(box, box * 10, box * 4, box * 4);
       ctx.fillRect(box * 10, box * 10, box * 4, box * 4);
 
-      // Pawns (গুটি) inside Bases
+      // Draw Pawns (গুটি)
       drawPawn(ctx, box * 2, box * 2, playerColors.Red);
       drawPawn(ctx, box * 4, box * 2, playerColors.Red);
       drawPawn(ctx, box * 2, box * 4, playerColors.Red);
@@ -312,13 +396,12 @@
       drawPawn(ctx, box * 11, box * 13, playerColors.Blue);
       drawPawn(ctx, box * 13, box * 13, playerColors.Blue);
 
-      // Grid Lines
+      // Grid
       ctx.strokeStyle = "#ccc";
       ctx.lineWidth = 1;
-
       for (let i = 0; i <= 15; i++) {
-        ctx.beginPath(); ctx.moveTo(i * box, 0); ctx.lineTo(i * box, size); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, i * box); ctx.lineTo(size, i * box); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i * box, 0); ctx.lineTo(i * box, 280); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i * box); ctx.lineTo(280, i * box); ctx.stroke();
       }
 
       // Home Paths
@@ -327,20 +410,20 @@
       ctx.fillStyle = playerColors.Blue; ctx.fillRect(box * 9, box * 7, box * 5, box);
       ctx.fillStyle = playerColors.Yellow; ctx.fillRect(box * 7, box * 9, box, box * 5);
 
-      // Center Box
-      ctx.fillStyle = "#111";
+      // Center Box Space
+      ctx.fillStyle = "#222";
       ctx.fillRect(box * 6, box * 6, box * 3, box * 3);
     }
 
     function drawPawn(ctx, x, y, color) {
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(x, y, 9, 0, Math.PI * 2);
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "#ffffff";
+      ctx.strokeStyle = "#fff";
       ctx.lineWidth = 2;
       ctx.stroke();
     }
   </script>
 </body>
-</html>
+  </html>
